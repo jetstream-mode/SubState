@@ -1,0 +1,87 @@
+[
+    {
+        "id": "0",
+        "artist": "Marcelino Franco",
+        "song": "Waldport Theme",
+        "fileName": "mainTheme.mp3",
+        "vinylFile": "AtsaThemeSky"
+    },
+    {
+        "id": "1",
+        "artist": "Cozy Photo",
+        "song": "Old Land (Atsa Edit)",
+        "fileName": "OldLandAtsa.mp3",
+        "vinylFile": "cozyPhotoOldLand"
+    },
+    {
+        "id": "2",
+        "artist": "Wild Year",
+        "song": "The Failure of Sleep",
+        "fileName": "failureOfSleep.mp3",
+        "vinylFile": "wildYearFailure"
+    },
+    {
+        "id": "3",
+        "artist": "Climber",
+        "song": "I'm Here",
+        "fileName": "imhere.mp3",
+        "vinylFile": "climberhere"
+    },
+    {
+        "id": "4",
+        "artist": "Fragile Tom",
+        "song": "Black Coats",
+        "fileName": "blackCoats.mp3",
+        "vinylFile": "frailetomblackcoats"
+    },
+    {
+        "id": "5",
+        "artist": "The Alphabet Zero",
+        "song": "Friends Don't Lie (Makeup and Vanity Set Remix)",
+        "fileName": "friendsDontLie.mp3",
+        "vinylFile": "alphabetZeroFriends"
+    },
+    {
+        "id": "6",
+        "artist": "Lucy in Disguise",
+        "song": "Southbound",
+        "fileName": "southbound.mp3",
+        "vinylFile": "lucyInDisguise"
+    },
+    {
+        "id": "7",
+        "artist": "The Alphabet Zero",
+        "song": "Beacon",
+        "fileName": "beacon.mp3",
+        "vinylFile": "alphabetZeroBeacon"
+    },
+    {
+        "id": "8",
+        "artist": "Zürich '81",
+        "song": "Stranded & Sold",
+        "fileName": "StrandedAndSold.mp3",
+        "vinylFile": "strandedAndSold"
+    },
+    {
+        "id": "9",
+        "artist": "See Tai",
+        "song": "Brother Sun",
+        "fileName": "brotherSun.mp3",
+        "vinylFile": "brothersun"
+    },
+    {
+        "id": "10",
+        "artist": "Makeup & Vanity Set",
+        "song": "Homecoming",
+        "fileName": "homecoming.mp3",
+        "vinylFile": "homecoming"
+    },
+    {
+        "id": "11",
+        "artist": "Lucy in Disguise",
+        "song": "Sky at night",
+        "fileName": "skyAtNight.mp3",
+        "vinylFile": "lucyInDisguise"
+    },
+    
+]

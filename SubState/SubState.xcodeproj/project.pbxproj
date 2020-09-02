@@ -17,6 +17,20 @@
 		D280FBF824FF0735002E3EEB /* CorridorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBF724FF0735002E3EEB /* CorridorView.swift */; };
 		D280FBFA24FF074D002E3EEB /* KeyDrag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBF924FF074D002E3EEB /* KeyDrag.swift */; };
 		D280FBFC24FF08C2002E3EEB /* MiscShapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBFB24FF08C2002E3EEB /* MiscShapes.swift */; };
+		D280FBFF250054D7002E3EEB /* mainTheme.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FBFE250054D7002E3EEB /* mainTheme.mp3 */; };
+		D280FC0B250054ED002E3EEB /* StrandedAndSold.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC00250054EA002E3EEB /* StrandedAndSold.mp3 */; };
+		D280FC0C250054ED002E3EEB /* brotherSun.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC01250054EB002E3EEB /* brotherSun.mp3 */; };
+		D280FC0D250054ED002E3EEB /* imhere.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC02250054EB002E3EEB /* imhere.mp3 */; };
+		D280FC0E250054ED002E3EEB /* beacon.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC03250054EB002E3EEB /* beacon.mp3 */; };
+		D280FC0F250054ED002E3EEB /* skyAtNight.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC04250054EB002E3EEB /* skyAtNight.mp3 */; };
+		D280FC10250054ED002E3EEB /* homecoming.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC05250054EB002E3EEB /* homecoming.mp3 */; };
+		D280FC11250054ED002E3EEB /* blackCoats.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC06250054EC002E3EEB /* blackCoats.mp3 */; };
+		D280FC12250054ED002E3EEB /* OldLandAtsa.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC07250054EC002E3EEB /* OldLandAtsa.mp3 */; };
+		D280FC13250054ED002E3EEB /* southbound.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC08250054EC002E3EEB /* southbound.mp3 */; };
+		D280FC14250054ED002E3EEB /* friendsDontLie.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC09250054EC002E3EEB /* friendsDontLie.mp3 */; };
+		D280FC15250054ED002E3EEB /* failureOfSleep.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC0A250054EC002E3EEB /* failureOfSleep.mp3 */; };
+		D280FC1825005599002E3EEB /* DIN Condensed Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D280FC1725005599002E3EEB /* DIN Condensed Bold.ttf */; };
+		D280FC1B250058F9002E3EEB /* Tracks.json in Resources */ = {isa = PBXBuildFile; fileRef = D280FC1A250058F9002E3EEB /* Tracks.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +67,20 @@
 		D280FBF724FF0735002E3EEB /* CorridorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorridorView.swift; sourceTree = "<group>"; };
 		D280FBF924FF074D002E3EEB /* KeyDrag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyDrag.swift; sourceTree = "<group>"; };
 		D280FBFB24FF08C2002E3EEB /* MiscShapes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiscShapes.swift; sourceTree = "<group>"; };
+		D280FBFE250054D7002E3EEB /* mainTheme.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = mainTheme.mp3; sourceTree = "<group>"; };
+		D280FC00250054EA002E3EEB /* StrandedAndSold.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = StrandedAndSold.mp3; sourceTree = "<group>"; };
+		D280FC01250054EB002E3EEB /* brotherSun.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = brotherSun.mp3; sourceTree = "<group>"; };
+		D280FC02250054EB002E3EEB /* imhere.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = imhere.mp3; sourceTree = "<group>"; };
+		D280FC03250054EB002E3EEB /* beacon.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = beacon.mp3; sourceTree = "<group>"; };
+		D280FC04250054EB002E3EEB /* skyAtNight.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = skyAtNight.mp3; sourceTree = "<group>"; };
+		D280FC05250054EB002E3EEB /* homecoming.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = homecoming.mp3; sourceTree = "<group>"; };
+		D280FC06250054EC002E3EEB /* blackCoats.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = blackCoats.mp3; sourceTree = "<group>"; };
+		D280FC07250054EC002E3EEB /* OldLandAtsa.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = OldLandAtsa.mp3; sourceTree = "<group>"; };
+		D280FC08250054EC002E3EEB /* southbound.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = southbound.mp3; sourceTree = "<group>"; };
+		D280FC09250054EC002E3EEB /* friendsDontLie.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = friendsDontLie.mp3; sourceTree = "<group>"; };
+		D280FC0A250054EC002E3EEB /* failureOfSleep.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = failureOfSleep.mp3; sourceTree = "<group>"; };
+		D280FC1725005599002E3EEB /* DIN Condensed Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "DIN Condensed Bold.ttf"; sourceTree = "<group>"; };
+		D280FC1A250058F9002E3EEB /* Tracks.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Tracks.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +131,9 @@
 		D280FBC924FF0689002E3EEB /* SubState */ = {
 			isa = PBXGroup;
 			children = (
+				D280FC192500589E002E3EEB /* Data */,
+				D280FC162500558C002E3EEB /* Fonts */,
+				D280FBFD250054C0002E3EEB /* Keys */,
 				D280FBCA24FF0689002E3EEB /* SubStateApp.swift */,
 				D280FBCC24FF0689002E3EEB /* ContentView.swift */,
 				D280FBFB24FF08C2002E3EEB /* MiscShapes.swift */,
@@ -140,6 +171,41 @@
 				D280FBE924FF068A002E3EEB /* Info.plist */,
 			);
 			path = SubStateUITests;
+			sourceTree = "<group>";
+		};
+		D280FBFD250054C0002E3EEB /* Keys */ = {
+			isa = PBXGroup;
+			children = (
+				D280FC03250054EB002E3EEB /* beacon.mp3 */,
+				D280FC06250054EC002E3EEB /* blackCoats.mp3 */,
+				D280FC01250054EB002E3EEB /* brotherSun.mp3 */,
+				D280FC0A250054EC002E3EEB /* failureOfSleep.mp3 */,
+				D280FC09250054EC002E3EEB /* friendsDontLie.mp3 */,
+				D280FC05250054EB002E3EEB /* homecoming.mp3 */,
+				D280FC02250054EB002E3EEB /* imhere.mp3 */,
+				D280FC07250054EC002E3EEB /* OldLandAtsa.mp3 */,
+				D280FC04250054EB002E3EEB /* skyAtNight.mp3 */,
+				D280FC08250054EC002E3EEB /* southbound.mp3 */,
+				D280FC00250054EA002E3EEB /* StrandedAndSold.mp3 */,
+				D280FBFE250054D7002E3EEB /* mainTheme.mp3 */,
+			);
+			path = Keys;
+			sourceTree = "<group>";
+		};
+		D280FC162500558C002E3EEB /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				D280FC1725005599002E3EEB /* DIN Condensed Bold.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+		D280FC192500589E002E3EEB /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				D280FC1A250058F9002E3EEB /* Tracks.json */,
+			);
+			path = Data;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -245,8 +311,22 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D280FC0D250054ED002E3EEB /* imhere.mp3 in Resources */,
 				D280FBD224FF068A002E3EEB /* Preview Assets.xcassets in Resources */,
+				D280FC0F250054ED002E3EEB /* skyAtNight.mp3 in Resources */,
+				D280FC0C250054ED002E3EEB /* brotherSun.mp3 in Resources */,
+				D280FC0E250054ED002E3EEB /* beacon.mp3 in Resources */,
+				D280FC1825005599002E3EEB /* DIN Condensed Bold.ttf in Resources */,
+				D280FC14250054ED002E3EEB /* friendsDontLie.mp3 in Resources */,
 				D280FBCF24FF068A002E3EEB /* Assets.xcassets in Resources */,
+				D280FC12250054ED002E3EEB /* OldLandAtsa.mp3 in Resources */,
+				D280FC15250054ED002E3EEB /* failureOfSleep.mp3 in Resources */,
+				D280FC13250054ED002E3EEB /* southbound.mp3 in Resources */,
+				D280FC1B250058F9002E3EEB /* Tracks.json in Resources */,
+				D280FC10250054ED002E3EEB /* homecoming.mp3 in Resources */,
+				D280FC11250054ED002E3EEB /* blackCoats.mp3 in Resources */,
+				D280FBFF250054D7002E3EEB /* mainTheme.mp3 in Resources */,
+				D280FC0B250054ED002E3EEB /* StrandedAndSold.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

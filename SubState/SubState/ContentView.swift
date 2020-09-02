@@ -896,8 +896,10 @@ struct DoorIdPanel: View {
                 .foregroundColor(.gray)
                 .loweredShapeStyle()
             Text("\(formattedIndex)")
-                .font(.system(size: 50))
+                //.font(.system(size: 50))
+                .font(.custom("DIN Condensed Bold", size: 50))
                 .foregroundColor(.offWhite)
+                .offset(y: 8)
         }
     }
 }
@@ -909,13 +911,13 @@ struct SongInfoPanel: View {
         ZStack {
             VStack(alignment: .leading) {
                 Text("3:03")
-                    .font(.system(size: 12))
+                    .font(.custom("DIN Condensed Bold", size: 16))
                     .foregroundColor(.offWhite)
                 Text("Makeup & Vanity Set")
-                    .font(.system(size: 12))
+                    .font(.custom("DIN Condensed Bold", size: 16))
                     .foregroundColor(.offWhite)
                 Text("Homecoming")
-                    .font(.system(size: 12))
+                    .font(.custom("DIN Condensed Bold", size: 16))
                     .foregroundColor(.offWhite)
             }
         }
