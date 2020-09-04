@@ -30,7 +30,9 @@
 		D280FC14250054ED002E3EEB /* friendsDontLie.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC09250054EC002E3EEB /* friendsDontLie.mp3 */; };
 		D280FC15250054ED002E3EEB /* failureOfSleep.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D280FC0A250054EC002E3EEB /* failureOfSleep.mp3 */; };
 		D280FC1825005599002E3EEB /* DIN Condensed Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D280FC1725005599002E3EEB /* DIN Condensed Bold.ttf */; };
-		D280FC1B250058F9002E3EEB /* Tracks.json in Resources */ = {isa = PBXBuildFile; fileRef = D280FC1A250058F9002E3EEB /* Tracks.json */; };
+		D280FC6E2502E9FE002E3EEB /* Bundle-Decodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FC6D2502E9FE002E3EEB /* Bundle-Decodable.swift */; };
+		D280FC702502EA7E002E3EEB /* Tracks.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FC6F2502EA7E002E3EEB /* Tracks.swift */; };
+		D280FC732502EF87002E3EEB /* tracks.json in Resources */ = {isa = PBXBuildFile; fileRef = D280FC712502EDC9002E3EEB /* tracks.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,7 +82,9 @@
 		D280FC09250054EC002E3EEB /* friendsDontLie.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = friendsDontLie.mp3; sourceTree = "<group>"; };
 		D280FC0A250054EC002E3EEB /* failureOfSleep.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = failureOfSleep.mp3; sourceTree = "<group>"; };
 		D280FC1725005599002E3EEB /* DIN Condensed Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "DIN Condensed Bold.ttf"; sourceTree = "<group>"; };
-		D280FC1A250058F9002E3EEB /* Tracks.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Tracks.json; sourceTree = "<group>"; };
+		D280FC6D2502E9FE002E3EEB /* Bundle-Decodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Bundle-Decodable.swift"; sourceTree = "<group>"; };
+		D280FC6F2502EA7E002E3EEB /* Tracks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tracks.swift; sourceTree = "<group>"; };
+		D280FC712502EDC9002E3EEB /* tracks.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tracks.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,7 +207,9 @@
 		D280FC192500589E002E3EEB /* Data */ = {
 			isa = PBXGroup;
 			children = (
-				D280FC1A250058F9002E3EEB /* Tracks.json */,
+				D280FC712502EDC9002E3EEB /* tracks.json */,
+				D280FC6D2502E9FE002E3EEB /* Bundle-Decodable.swift */,
+				D280FC6F2502EA7E002E3EEB /* Tracks.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -311,6 +317,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D280FC732502EF87002E3EEB /* tracks.json in Resources */,
 				D280FC0D250054ED002E3EEB /* imhere.mp3 in Resources */,
 				D280FBD224FF068A002E3EEB /* Preview Assets.xcassets in Resources */,
 				D280FC0F250054ED002E3EEB /* skyAtNight.mp3 in Resources */,
@@ -322,7 +329,6 @@
 				D280FC12250054ED002E3EEB /* OldLandAtsa.mp3 in Resources */,
 				D280FC15250054ED002E3EEB /* failureOfSleep.mp3 in Resources */,
 				D280FC13250054ED002E3EEB /* southbound.mp3 in Resources */,
-				D280FC1B250058F9002E3EEB /* Tracks.json in Resources */,
 				D280FC10250054ED002E3EEB /* homecoming.mp3 in Resources */,
 				D280FC11250054ED002E3EEB /* blackCoats.mp3 in Resources */,
 				D280FBFF250054D7002E3EEB /* mainTheme.mp3 in Resources */,
@@ -356,7 +362,9 @@
 				D280FBF624FF0723002E3EEB /* KeyShapes.swift in Sources */,
 				D280FBCD24FF0689002E3EEB /* ContentView.swift in Sources */,
 				D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */,
+				D280FC6E2502E9FE002E3EEB /* Bundle-Decodable.swift in Sources */,
 				D280FBFA24FF074D002E3EEB /* KeyDrag.swift in Sources */,
+				D280FC702502EA7E002E3EEB /* Tracks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

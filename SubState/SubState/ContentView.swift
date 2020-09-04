@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var tracks: [Tracks] = Bundle.main.decode([Tracks].self, from: "tracks.json")
+    
+    
     let keySize: CGFloat = 25
     @State var selectedKey: Int = 0
     @State var slideOpen: Bool = false
@@ -15,21 +18,40 @@ struct ContentView: View {
     
     @State var keyDragId: Int = 0
     
+    @State var navigationState: Int = 0
+    
     var body: some View {
         ZStack {
             Color.offWhite
-            HallwayTrack()
+//            HallwayTrack()
+//                .offset(y: -55)
             VStack(alignment: .leading) {
-                CorridorView(doorCount: 12, currentIndex: $selectedKey) {
-                    ForEach(0..<12) { value in
-                        SlidingEntry(doorIndex: value, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
+                switch navigationState {
+                case 0:
+                    TrackScrollList(tracks: $tracks, selectedKey: $selectedKey)
+                        .transition(.opacity)
+                case 1:
+                    CorridorView(doorCount: 12, currentIndex: $selectedKey) {
+                        ForEach(0..<12) { value in
+                            SlidingEntry(doorIndex: value, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
+                        }
                     }
+                    .offset(y: -65)
+                    .transition(.opacity)
+                    keyGrid(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys, keyDragId: $keyDragId)
+                        .offset(y: -65)
+                        .transition(.opacity)
+                case 2:
+                    EmptyView()
+                default:
+                    EmptyView()
                 }
-                CorridorNavigation(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
-                    .offset(y: -60)
-                keyGrid(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys, keyDragId: $keyDragId)
+
+                SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
+                StateNavigation(navigationState: $navigationState, slideOpen: $slideOpen, selectedKey: $selectedKey, allKeys: $allKeys)
             }
-            .offset(x: 0, y: -40)
+            .offset(x: 0, y: -30)
+            .animation(.default)
             
             
         }
@@ -38,11 +60,207 @@ struct ContentView: View {
     }
 }
 
+struct TrackScrollList: View {
+    @Binding var tracks: [Tracks]
+    @Binding var selectedKey: Int
+    var body: some View {
+        ZStack {
+            VStack {
+                Spacer()
+                    .frame(height: 100)
+                ScrollViewReader { scrollProxy in
+                    ScrollView {
+                        VStack(spacing: 10) {
+                            ForEach(tracks) { track in
+                                TrackCell(track: track)
+                                    .id(Int(track.id))
+                                    .background(Color.offWhite)
+                            }
+                        }
+                    }
+                    .onChange(of: selectedKey) { value in
+                        debugPrint("change of selected key scroll ", value)
+                        withAnimation {
+                            scrollProxy.scrollTo(value)
+                        }
+                    }
+
+                }
+            }
+
+        }
+
+    }
+}
+
+struct TrackCell: View {
+    var track: Tracks
+    
+    var body: some View {
+        HStack {
+            Text("\(track.artist)")
+                .foregroundColor(Color.gray)
+            Spacer()
+                .frame(width: 20)
+            Text("\(track.song)")
+                .foregroundColor(Color.gray)
+        }
+    }
+}
+
+struct SubStateController: View {
+    @Binding var selectedKey: Int
+    @Binding var slideOpen: Bool
+    @Binding var allKeys: [Any]
+    
+    let buttonSize: CGFloat = 25
+    
+    var body: some View {
+        
+        HStack(alignment: .bottom) {
+            Image("subStateLogo")
+//                .alignmentGuide(.bottom) { d in
+//                    d[.bottom] - 0
+//                }
+
+            
+            if selectedKey == 0 {
+                KeyOneRaw()
+                    .foregroundColor(.gray)
+                    .frame(width: buttonSize/2, height: buttonSize/2)
+                    .alignmentGuide(.bottom) { d in
+                        d[.bottom] + 20
+                    }
+                    .offset(x: 10)
+                    .transition(.scale)
+            } else if selectedKey == 1 {
+                KeyTwoRaw()
+                    .foregroundColor(.gray)
+                    .frame(width: buttonSize/2, height: buttonSize/2)
+                    .alignmentGuide(.bottom) { d in
+                        d[.bottom] + 20
+                    }
+                    .offset(x: 10)
+                    .transition(.scale)
+            } else if selectedKey == 2 {
+                KeyThreeRaw()
+                    .foregroundColor(.gray)
+                    .frame(width: buttonSize/2, height: buttonSize/2)
+                    .alignmentGuide(.bottom) { d in
+                        d[.bottom] + 20
+                    }
+                    .offset(x: 10)
+                    .transition(.scale)
+            }
+
+        }
+        .offset(x: 5)
+        .animation(.default)
+
+    }
+    
+}
+
+struct StateNavigation: View {
+    @Binding var navigationState: Int
+    @Binding var slideOpen: Bool
+    @Binding var selectedKey: Int
+    @Binding var allKeys: [Any]
+    let buttonSize: CGFloat = 35
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+
+            HStack {
+                Button(action: {
+                    navigationState = 0
+                    debugPrint("nav state ", navigationState)
+                }) {
+                    NavBridge(parentSize: 12)
+                        .foregroundColor(.gray)
+                        .frame(width: buttonSize, height: buttonSize)
+                }
+                .buttonStyle(SquareButtonStyle())
+                Button(action: {
+                    navigationState = 1
+                    debugPrint("nav state ", navigationState)
+                }) {
+                    NavCorridor(parentSize: 12)
+                        .foregroundColor(.gray)
+                        .frame(width: buttonSize, height: buttonSize)
+                }
+                .buttonStyle(SquareButtonStyle())
+                Button(action: {
+                    navigationState = 2
+                    debugPrint("nav state ", navigationState)
+                }) {
+                    NavLog(parentSize: 12)
+                        .foregroundColor(.gray)
+                        .frame(width: buttonSize, height: buttonSize)
+                }
+                .buttonStyle(SquareButtonStyle())
+                Spacer()
+                Button(action: {
+                    if slideOpen {
+                        slideOpen = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            selectedKey -= 1
+                            if selectedKey < 0 {
+                                selectedKey = 0
+                            }
+                        }
+                    } else {
+                        slideOpen = false
+                        selectedKey -= 1
+                        allKeys.shuffle()
+                        if selectedKey < 0 {
+                            selectedKey = 0
+                        }
+                    }
+                }) {
+                    ArrowLeft(parentSize: 10)
+                        .foregroundColor(.gray)
+                        .frame(width: buttonSize, height: buttonSize)
+                }
+                .buttonStyle(SquareButtonStyle())
+                Button(action: {
+                    if slideOpen {
+                        slideOpen = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            selectedKey += 1
+                            if selectedKey > 11 {
+                                selectedKey = 11
+                            }
+                        }
+                    } else {
+                        slideOpen = false
+                        selectedKey += 1
+                        allKeys.shuffle()
+                        if selectedKey > 11 {
+                            selectedKey = 11
+                        }
+                    }
+                }) {
+                    ArrowRight(parentSize: 12)
+                        .foregroundColor(.gray)
+                        .frame(width: buttonSize, height: buttonSize)
+                }
+                .buttonStyle(SquareButtonStyle())
+                Spacer()
+                    .frame(width: 20)
+            }
+        }
+        .offset(x: 5)
+        
+    }
+}
+
 struct CorridorNavigation: View {
 
     @Binding var selectedKey: Int
     @Binding var slideOpen: Bool
     @Binding var allKeys: [Any]
+    let buttonSize: CGFloat = 15
     
     var body: some View {
         
@@ -68,7 +286,7 @@ struct CorridorNavigation: View {
             }) {
                 ArrowLeft(parentSize: 12)
                     .foregroundColor(.gray)
-                    .frame(width: 25, height: 25)
+                    .frame(width: buttonSize, height: buttonSize)
             }
             .buttonStyle(SquareButtonStyle())
             
@@ -78,17 +296,17 @@ struct CorridorNavigation: View {
             if selectedKey == 0 {
                 KeyOneRaw()
                     .foregroundColor(.gray)
-                    .frame(width: 25, height: 25)
+                    .frame(width: buttonSize, height: buttonSize)
                     .transition(.scale)
             } else if selectedKey == 1 {
                 KeyTwoRaw()
                     .foregroundColor(.gray)
-                    .frame(width: 25, height: 25)
+                    .frame(width: buttonSize, height: buttonSize)
                     .transition(.scale)
             } else if selectedKey == 2 {
                 KeyThreeRaw()
                     .foregroundColor(.gray)
-                    .frame(width: 25, height: 25)
+                    .frame(width: buttonSize, height: buttonSize)
                     .transition(.scale)
             }
 
@@ -115,7 +333,7 @@ struct CorridorNavigation: View {
             }) {
                 ArrowRight(parentSize: 12)
                     .foregroundColor(.gray)
-                    .frame(width: 25, height: 25)
+                    .frame(width: buttonSize, height: buttonSize)
             }
             .buttonStyle(SquareButtonStyle())
             
@@ -128,8 +346,8 @@ struct CorridorNavigation: View {
 
 
 struct keyGrid: View {
-    let keySize: CGFloat = 25
-    let keyBGSize: CGFloat = 75
+    let keySize: CGFloat = 10
+    let keyBGSize: CGFloat = 50
     
     var gridItemLayout = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
     
@@ -142,7 +360,7 @@ struct keyGrid: View {
     
     var body: some View {
 
-        LazyVGrid(columns: gridItemLayout, spacing: 55) {
+        LazyVGrid(columns: gridItemLayout, spacing: 45) {
             
             ForEach(0..<allKeys.count) { index in
                 self.buildKeyView(keys: self.allKeys, index: index)
@@ -465,7 +683,7 @@ struct SquareButtonStyle: ButtonStyle {
     let cornerRadius: CGFloat = 9
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .padding(30)
+            .padding(10)
             .contentShape(Rectangle())
             .background(
                 Group {
@@ -997,6 +1215,76 @@ struct ArrowRaw: Shape {
         }
     }
 }
+
+// bridge corriodr log
+
+struct NavBridge: View {
+    var parentSize: CGFloat
+    
+    var body: some View {
+        ZStack {
+            BridgeRaw()
+                .frame(width: parentSize, height: parentSize)
+        }
+    }
+}
+
+struct NavCorridor: View {
+    var parentSize: CGFloat
+    
+    var body: some View {
+        ZStack {
+            BridgeRaw()
+                .frame(width: parentSize, height: parentSize)
+        }
+    }
+}
+
+struct NavLog: View {
+    var parentSize: CGFloat
+    
+    var body: some View {
+        ZStack {
+            BridgeRaw()
+                .frame(width: parentSize, height: parentSize)
+        }
+    }
+}
+
+struct BridgeRaw: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height/2)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: rect.height/2))
+            path.addLine(to: CGPoint(x: rect.size.width, y: rect.height + (rect.height/2)))
+            path.closeSubpath()
+        }
+    }
+}
+
+struct CorridorRaw: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height/2)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: rect.height/2))
+            path.addLine(to: CGPoint(x: rect.size.width, y: rect.height + (rect.height/2)))
+            path.closeSubpath()
+        }
+    }
+}
+
+struct LogRaw: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height/2)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: rect.height/2))
+            path.addLine(to: CGPoint(x: rect.size.width, y: rect.height + (rect.height/2)))
+            path.closeSubpath()
+        }
+    }
+}
+
+
 
 
 
