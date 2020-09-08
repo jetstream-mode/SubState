@@ -34,6 +34,7 @@
 		D280FC702502EA7E002E3EEB /* Tracks.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FC6F2502EA7E002E3EEB /* Tracks.swift */; };
 		D280FC732502EF87002E3EEB /* tracks.json in Resources */ = {isa = PBXBuildFile; fileRef = D280FC712502EDC9002E3EEB /* tracks.json */; };
 		D280FC752507EC65002E3EEB /* TracksContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FC742507EC65002E3EEB /* TracksContainer.swift */; };
+		D280FC932508376A002E3EEB /* SubStatePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FC922508376A002E3EEB /* SubStatePlayer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,6 +88,7 @@
 		D280FC6F2502EA7E002E3EEB /* Tracks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tracks.swift; sourceTree = "<group>"; };
 		D280FC712502EDC9002E3EEB /* tracks.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tracks.json; sourceTree = "<group>"; };
 		D280FC742507EC65002E3EEB /* TracksContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracksContainer.swift; sourceTree = "<group>"; };
+		D280FC922508376A002E3EEB /* SubStatePlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubStatePlayer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +139,7 @@
 		D280FBC924FF0689002E3EEB /* SubState */ = {
 			isa = PBXGroup;
 			children = (
+				D280FC912508374F002E3EEB /* Audio */,
 				D280FC192500589E002E3EEB /* Data */,
 				D280FC162500558C002E3EEB /* Fonts */,
 				D280FBFD250054C0002E3EEB /* Keys */,
@@ -215,6 +218,14 @@
 				D280FC6F2502EA7E002E3EEB /* Tracks.swift */,
 			);
 			path = Data;
+			sourceTree = "<group>";
+		};
+		D280FC912508374F002E3EEB /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				D280FC922508376A002E3EEB /* SubStatePlayer.swift */,
+			);
+			path = Audio;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -363,6 +374,7 @@
 				D280FBF824FF0735002E3EEB /* CorridorView.swift in Sources */,
 				D280FBFC24FF08C2002E3EEB /* MiscShapes.swift in Sources */,
 				D280FBF624FF0723002E3EEB /* KeyShapes.swift in Sources */,
+				D280FC932508376A002E3EEB /* SubStatePlayer.swift in Sources */,
 				D280FC752507EC65002E3EEB /* TracksContainer.swift in Sources */,
 				D280FBCD24FF0689002E3EEB /* ContentView.swift in Sources */,
 				D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */,

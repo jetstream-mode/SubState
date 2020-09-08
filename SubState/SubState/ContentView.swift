@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State var tracks: [Tracks] = Bundle.main.decode([Tracks].self, from: "tracks.json")
-    
+    let subStatePlayer = SubStatePlayer()
     
     let keySize: CGFloat = 25
     @State var selectedKey: Int = 0
@@ -29,7 +29,7 @@ struct ContentView: View {
                 switch navigationState {
                 case 0:
                     TrackScrollList(tracks: $tracks, selectedKey: $selectedKey)
-                        .transition(.asymmetric(insertion: .opacity, removal: .opacity))
+                        //.transition(.asymmetric(insertion: .opacity, removal: .opacity))
                 case 1:
                     CorridorView(currentIndex: $selectedKey) {
                         ForEach(0..<12) { value in
@@ -40,7 +40,7 @@ struct ContentView: View {
                     .transition(.asymmetric(insertion: .opacity, removal: .opacity))
                     keyGrid(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys, keyDragId: $keyDragId)
                         .offset(y: -65)
-                        .transition(.asymmetric(insertion: .opacity, removal: .opacity))
+                        //.transition(.asymmetric(insertion: .opacity, removal: .opacity))
                 case 2:
                     EmptyView()
                 default:
@@ -50,7 +50,14 @@ struct ContentView: View {
                 StateNavigation(navigationState: $navigationState, slideOpen: $slideOpen, selectedKey: $selectedKey, allKeys: $allKeys)
             }
             .offset(x: 0, y: -30)
-            .animation(.default)
+            //.animation(.default)
+            .onChange(of: selectedKey) { newKey in
+                subStatePlayer.playTrack(track: tracks[newKey].fileName)
+            }
+            .onAppear {
+                //store state eventually instead of starting at 0
+                subStatePlayer.playTrack(track: tracks[0].fileName)
+            }
             
             
         }
@@ -76,52 +83,21 @@ struct TrackScrollList: View {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(tracks) { track in
                         Button(action: {
-                            debugPrint("track row ", track.id)
+                            if let trackButtonHit = Int(track.id) {
+                                selectedKey = trackButtonHit
+                            }
                         }) {
                             TrackCell(selectedKey: $selectedKey, track: track)
                                 .id(Int(track.id))
+                                .transition(.slide)
                         }
                     }
                     Spacer()
                 }
                 .offset(y: currentYOffset)
-                .animation(.default)
             }
+            .animation(.default)
         }
-        
-        /*
-        ZStack {
-            VStack {
-                Spacer()
-                    .frame(height: 100)
-                ScrollViewReader { scrollProxy in
-                    ScrollView {
-                        VStack(spacing: 10) {
-                            ForEach(tracks) { track in
-                                Button(action: {
-                                    debugPrint("track row ", track.id)
-                                }) {
-                                    TrackCell(track: track)
-                                        .id(Int(track.id))
-                                        .background(Color.offWhite)
-                                }
-
-                            }
-                        }
-                    }
-                    .onChange(of: selectedKey) { value in
-                        debugPrint("change of selected key scroll ", value)
-                        withAnimation {
-                            scrollProxy.scrollTo(value)
-                        }
-                    }
-
-                }
-            }
-
-        }
- */
-
     }
 }
 
