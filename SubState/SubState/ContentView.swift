@@ -29,24 +29,23 @@ struct ContentView: View {
                 switch navigationState {
                 case 0:
                     TrackScrollList(tracks: $tracks, selectedKey: $selectedKey)
-                        .transition(.opacity)
+                        .transition(.asymmetric(insertion: .opacity, removal: .opacity))
                 case 1:
-                    CorridorView(doorCount: 12, currentIndex: $selectedKey) {
+                    CorridorView(currentIndex: $selectedKey) {
                         ForEach(0..<12) { value in
                             SlidingEntry(doorIndex: value, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
                         }
                     }
                     .offset(y: -65)
-                    .transition(.opacity)
+                    .transition(.asymmetric(insertion: .opacity, removal: .opacity))
                     keyGrid(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys, keyDragId: $keyDragId)
                         .offset(y: -65)
-                        .transition(.opacity)
+                        .transition(.asymmetric(insertion: .opacity, removal: .opacity))
                 case 2:
                     EmptyView()
                 default:
                     EmptyView()
                 }
-
                 SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
                 StateNavigation(navigationState: $navigationState, slideOpen: $slideOpen, selectedKey: $selectedKey, allKeys: $allKeys)
             }
@@ -63,7 +62,34 @@ struct ContentView: View {
 struct TrackScrollList: View {
     @Binding var tracks: [Tracks]
     @Binding var selectedKey: Int
+    var currentYOffset: CGFloat {
+        return -((CGFloat(selectedKey) * 50) - 200)
+    }
     var body: some View {
+        
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                Rectangle()
+                    .fill(LinearGradient(gradient: Gradient(colors: [.gray, .offWhite]), startPoint: .top, endPoint: .bottomTrailing))
+                    .frame(width: 50, height: geometry.size.height)
+                    .offset(x: 50)
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(tracks) { track in
+                        Button(action: {
+                            debugPrint("track row ", track.id)
+                        }) {
+                            TrackCell(selectedKey: $selectedKey, track: track)
+                                .id(Int(track.id))
+                        }
+                    }
+                    Spacer()
+                }
+                .offset(y: currentYOffset)
+                .animation(.default)
+            }
+        }
+        
+        /*
         ZStack {
             VStack {
                 Spacer()
@@ -72,9 +98,14 @@ struct TrackScrollList: View {
                     ScrollView {
                         VStack(spacing: 10) {
                             ForEach(tracks) { track in
-                                TrackCell(track: track)
-                                    .id(Int(track.id))
-                                    .background(Color.offWhite)
+                                Button(action: {
+                                    debugPrint("track row ", track.id)
+                                }) {
+                                    TrackCell(track: track)
+                                        .id(Int(track.id))
+                                        .background(Color.offWhite)
+                                }
+
                             }
                         }
                     }
@@ -89,22 +120,92 @@ struct TrackScrollList: View {
             }
 
         }
+ */
 
     }
 }
 
 struct TrackCell: View {
+    @Binding var selectedKey: Int
     var track: Tracks
+    let keyShapeSize: CGFloat = 25
+    
+    var trackId: Int {
+        return Int(track.id) ?? 0
+    }
+    
+    var trackOpacity: Double {
+        if trackId == selectedKey {
+            return 0.8
+        } else {
+            return 0.2
+        }
+    }
     
     var body: some View {
-        HStack {
-            Text("\(track.artist)")
-                .foregroundColor(Color.gray)
+        
+        HStack(alignment: .bottom) {
+            Image(track.vinylFile)
+                .resizable()
+                .opacity(trackOpacity)
+                .frame(width: 50, height: 50)
+                .offset(x: 0)
             Spacer()
-                .frame(width: 20)
-            Text("\(track.song)")
-                .foregroundColor(Color.gray)
+                .frame(width: 0)
+            switch trackId {
+            case 0:
+                KeyOneRaw()
+                    .foregroundColor(.white)
+                    .frame(width: keyShapeSize/2, height: keyShapeSize/2)
+                    .alignmentGuide(.bottom) { d in
+                        d[.bottom] + 20
+                    }
+                    .opacity(trackOpacity)
+                    .offset(x: 15)
+            case 1:
+                KeyTwoRaw()
+                    .foregroundColor(.white)
+                    .frame(width: keyShapeSize/2, height: keyShapeSize/2)
+                    .alignmentGuide(.bottom) { d in
+                        d[.bottom] + 20
+                    }
+                    .opacity(trackOpacity)
+                    .offset(x: 15)
+            case 2:
+                KeyThreeRaw()
+                    .foregroundColor(.white)
+                    .frame(width: keyShapeSize/2, height: keyShapeSize/2)
+                    .alignmentGuide(.bottom) { d in
+                        d[.bottom] + 20
+                    }
+                    .opacity(trackOpacity)
+                    .offset(x: 15)
+            default:
+                KeyThreeRaw()
+                    .foregroundColor(.white)
+                    .frame(width: keyShapeSize/2, height: keyShapeSize/2)
+                    .alignmentGuide(.bottom) { d in
+                        d[.bottom] + 20
+                    }
+                    .opacity(trackOpacity)
+                    .offset(x: 15)
+                
+            }
+
+            Spacer()
+                .frame(width: 50)
+            VStack(alignment: .leading) {
+                Text("\(track.song)")
+                    .font(.custom("DIN Condensed Bold", size: 16))
+                    .foregroundColor(Color.gray)
+                Text("\(track.artist)")
+                    .font(.custom("DIN Condensed Bold", size: 12))
+                    .foregroundColor(Color.gray)
+            }
+            .opacity(trackOpacity)
         }
+        .animation(.default)
+        .frame(height: 50)
     }
 }
 

@@ -8,18 +8,18 @@
 import SwiftUI
 
 struct CorridorView<Content: View>: View {
-    let doorCount: Int
     @Binding var currentIndex: Int
     let content: Content
 
-    init(doorCount: Int, currentIndex: Binding<Int>, @ViewBuilder content: () -> Content) {
-        self.doorCount = doorCount
+    init(currentIndex: Binding<Int>, @ViewBuilder content: () -> Content) {
         self._currentIndex = currentIndex
         self.content = content()
     }
     
     var body: some View {
+        
         GeometryReader { geometry in
+            
             ZStack {
                 HStack(spacing: 0) {
                     self.content.frame(width: geometry.size.width)
