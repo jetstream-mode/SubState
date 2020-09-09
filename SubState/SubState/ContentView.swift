@@ -26,31 +26,30 @@ struct ContentView: View {
 //            HallwayTrack()
 //                .offset(y: -55)
             VStack(alignment: .leading) {
-                switch navigationState {
-                case 0:
-                    TrackScrollList(tracks: $tracks, selectedKey: $selectedKey)
-                        //.transition(.asymmetric(insertion: .opacity, removal: .opacity))
-                case 1:
+                //state 0
+                if navigationState == 0 {
+                    TrackScrollList(navigationState: $navigationState, tracks: $tracks, selectedKey: $selectedKey)
+                        //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
+                        //.transition(AnyTransition.identity)
+                } else if navigationState == 1 {
+                    //state 1
                     CorridorView(currentIndex: $selectedKey) {
                         ForEach(0..<12) { value in
                             SlidingEntry(doorIndex: value, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
                         }
                     }
+                    //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
+                    //.transition(AnyTransition.identity)
                     .offset(y: -65)
-                    .transition(.asymmetric(insertion: .opacity, removal: .opacity))
-                    keyGrid(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys, keyDragId: $keyDragId)
+                    keyGrid(navigationState: $navigationState, selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys, keyDragId: $keyDragId)
                         .offset(y: -65)
-                        //.transition(.asymmetric(insertion: .opacity, removal: .opacity))
-                case 2:
-                    EmptyView()
-                default:
-                    EmptyView()
                 }
+
                 SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
                 StateNavigation(navigationState: $navigationState, slideOpen: $slideOpen, selectedKey: $selectedKey, allKeys: $allKeys)
             }
             .offset(x: 0, y: -30)
-            //.animation(.default)
+            .animation(.default)
             .onChange(of: selectedKey) { newKey in
                 subStatePlayer.playTrack(track: tracks[newKey].fileName)
             }
@@ -67,6 +66,7 @@ struct ContentView: View {
 }
 
 struct TrackScrollList: View {
+    @Binding var navigationState: Int
     @Binding var tracks: [Tracks]
     @Binding var selectedKey: Int
     var currentYOffset: CGFloat {
@@ -80,6 +80,8 @@ struct TrackScrollList: View {
                     .fill(LinearGradient(gradient: Gradient(colors: [.gray, .offWhite]), startPoint: .top, endPoint: .bottomTrailing))
                     .frame(width: 50, height: geometry.size.height)
                     .offset(x: 50)
+
+                
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(tracks) { track in
                         Button(action: {
@@ -89,12 +91,15 @@ struct TrackScrollList: View {
                         }) {
                             TrackCell(selectedKey: $selectedKey, track: track)
                                 .id(Int(track.id))
+                                //.transition(.asymmetric(insertion: .slide, removal: .scale(scale: 0.0, anchor: .center)))
                                 .transition(.slide)
                         }
+
                     }
                     Spacer()
                 }
                 .offset(y: currentYOffset)
+                
             }
             .animation(.default)
         }
@@ -180,7 +185,6 @@ struct TrackCell: View {
             }
             .opacity(trackOpacity)
         }
-        .animation(.default)
         .frame(height: 50)
     }
 }
@@ -333,7 +337,6 @@ struct StateNavigation: View {
 }
 
 struct CorridorNavigation: View {
-
     @Binding var selectedKey: Int
     @Binding var slideOpen: Bool
     @Binding var allKeys: [Any]
@@ -427,7 +430,7 @@ struct keyGrid: View {
     let keyBGSize: CGFloat = 50
     
     var gridItemLayout = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
-    
+    @Binding var navigationState: Int
     @Binding var selectedKey: Int
     @Binding var slideOpen: Bool
     
@@ -436,7 +439,7 @@ struct keyGrid: View {
     @Binding var keyDragId: Int
     
     var body: some View {
-
+        
         LazyVGrid(columns: gridItemLayout, spacing: 45) {
             
             ForEach(0..<allKeys.count) { index in
@@ -445,11 +448,9 @@ struct keyGrid: View {
 
         }
         //maybe a bug
-        //.animation(.default)
-        
-    }
-    
+        //.animation(.default)}
 
+    }
     
     func buildKeyView(keys: [Any], index: Int) -> AnyView {
         switch keys[index].self {
@@ -810,13 +811,13 @@ struct SquareButtonStyle: ButtonStyle {
 
 struct SlidingEntry: View {
     let doorIndex: Int
-    
     @Binding var slideOpen: Bool
     @Binding var selectedKey: Int
     @Binding var keyDragId: Int
     
     var body: some View {
         GeometryReader { geometry in
+
             VStack {
                 ZStack {
                     Text("Song info for: \(doorIndex)")
@@ -1070,6 +1071,15 @@ struct SoftTransitionModifier: ViewModifier {
     }
 }
 
+struct CornerRotateModifier: ViewModifier {
+    let amount: Double
+    let anchor: UnitPoint
+
+    func body(content: Content) -> some View {
+        content.rotationEffect(.degrees(amount), anchor: anchor).clipped()
+    }
+}
+
 // Extensions
 
 extension View {
@@ -1100,6 +1110,13 @@ extension AnyTransition {
             active: SoftTransitionModifier(opacity: 0, animation: nil),
             identity: SoftTransitionModifier(opacity: 1, animation: Animation.easeOut(duration: 0.5).delay(0.5)))
         }
+    }
+    
+    static var pivot: AnyTransition {
+        .modifier(
+            active: CornerRotateModifier(amount: -90, anchor: .topLeading),
+            identity: CornerRotateModifier(amount: 0, anchor: .topLeading)
+        )
     }
     
 }

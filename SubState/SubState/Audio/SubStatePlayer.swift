@@ -14,12 +14,16 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
     
     var audioPlayer = AVAudioPlayer()
     
+    var audioTimer: Timer?
+    
     //audio pulse
     var audioPulse: CGFloat = 0.0
     
     override init() {
         super.init()
         //self.playTrack(track: tracks[0].fileName)
+        self.audioTimer?.invalidate()
+        self.audioTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.audioUpdate), userInfo: nil, repeats: true)
     }
     
     func stopPlayer() {
@@ -41,6 +45,7 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
         if let musicUrl = musicUrl {
             DispatchQueue.global(qos: .background).async {
                 do {
+                    
                     try self.audioPlayer = AVAudioPlayer(contentsOf: musicUrl)
                     self.audioPlayer.delegate = self
                     self.audioPlayer.isMeteringEnabled = true
@@ -48,11 +53,16 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
                     //you were so bad
                     //self.audioPlayer.currentTime = Double((self.trackPlayer?.trackTime)!)!
                     self.audioPlayer.play()
+                    
                 } catch {
                     debugPrint("error ", error)
                 }
             }
         }
+    }
+    
+    @objc func audioUpdate() {
+        debugPrint("audio update")
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {

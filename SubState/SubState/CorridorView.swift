@@ -19,7 +19,6 @@ struct CorridorView<Content: View>: View {
     var body: some View {
         
         GeometryReader { geometry in
-            
             ZStack {
                 HStack(spacing: 0) {
                     self.content.frame(width: geometry.size.width)
@@ -28,7 +27,6 @@ struct CorridorView<Content: View>: View {
                 .offset(x: -CGFloat(self.currentIndex) * geometry.size.width)
                 .animation(.default)
             }
-
         }
     }
     
