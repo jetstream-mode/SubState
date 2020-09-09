@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @State var tracks: [Tracks] = Bundle.main.decode([Tracks].self, from: "tracks.json")
     @ObservedObject var subStatePlayer = SubStatePlayer()
+    @State var currentTime: String = ""
     
     let keySize: CGFloat = 25
     @State var selectedKey: Int = 0
@@ -29,7 +30,7 @@ struct ContentView: View {
             VStack(alignment: .leading) {
                 //state 0
                 if navigationState == 0 {
-                    TrackScrollList(navigationState: $navigationState, tracks: $tracks, selectedKey: $selectedKey)
+                    TrackScrollList(currentTime: $currentTime, navigationState: $navigationState, tracks: $tracks, selectedKey: $selectedKey)
                         //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
                         //.transition(AnyTransition.identity)
                 } else if navigationState == 1 {
@@ -48,13 +49,23 @@ struct ContentView: View {
 
                 SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
                 StateNavigation(navigationState: $navigationState, slideOpen: $slideOpen, selectedKey: $selectedKey, allKeys: $allKeys)
-                Text("Track Time \(subStatePlayer.trackTime)")
-                    .foregroundColor(Color.black)
+                HStack {
+                    Spacer()
+                    Text("\(currentTime)")
+                        .font(.custom("DIN Condensed Bold", size: 16))
+                        .foregroundColor(Color.gray)
+                    Spacer()
+                        .frame(width: 20)
+                }
+
             }
             .offset(x: 0, y: -30)
             .animation(.default)
             .onChange(of: selectedKey) { newKey in
                 subStatePlayer.playTrack(track: tracks[newKey].fileName)
+            }
+            .onChange(of: subStatePlayer.trackTime) { newTime in
+                currentTime = newTime
             }
             .onAppear {
                 //store state eventually instead of starting at 0
@@ -69,6 +80,7 @@ struct ContentView: View {
 }
 
 struct TrackScrollList: View {
+    @Binding var currentTime: String
     @Binding var navigationState: Int
     @Binding var tracks: [Tracks]
     @Binding var selectedKey: Int
@@ -83,8 +95,7 @@ struct TrackScrollList: View {
                     .fill(LinearGradient(gradient: Gradient(colors: [.gray, .offWhite]), startPoint: .top, endPoint: .bottomTrailing))
                     .frame(width: 50, height: geometry.size.height)
                     .offset(x: 50)
-
-                
+                                
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(tracks) { track in
                         Button(action: {
@@ -92,7 +103,7 @@ struct TrackScrollList: View {
                                 selectedKey = trackButtonHit
                             }
                         }) {
-                            TrackCell(selectedKey: $selectedKey, track: track)
+                            TrackCell(selectedKey: $selectedKey, currentTime: $currentTime, track: track)
                                 .id(Int(track.id))
                                 //.transition(.asymmetric(insertion: .slide, removal: .scale(scale: 0.0, anchor: .center)))
                                 .transition(.slide)
@@ -111,6 +122,7 @@ struct TrackScrollList: View {
 
 struct TrackCell: View {
     @Binding var selectedKey: Int
+    @Binding var currentTime: String
     var track: Tracks
     let keyShapeSize: CGFloat = 25
     
@@ -182,9 +194,17 @@ struct TrackCell: View {
                 Text("\(track.song)")
                     .font(.custom("DIN Condensed Bold", size: 16))
                     .foregroundColor(Color.gray)
-                Text("\(track.artist)")
-                    .font(.custom("DIN Condensed Bold", size: 12))
-                    .foregroundColor(Color.gray)
+                HStack {
+                    Text("\(track.artist)")
+                        .font(.custom("DIN Condensed Bold", size: 12))
+                        .foregroundColor(Color.gray)
+                    if trackId == selectedKey {
+                        Text("\(currentTime)")
+                            .font(.custom("DIN Condensed Bold", size: 12))
+                            .foregroundColor(Color.gray)
+                    }
+                }
+
             }
             .opacity(trackOpacity)
         }
