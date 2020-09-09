@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State var tracks: [Tracks] = Bundle.main.decode([Tracks].self, from: "tracks.json")
-    let subStatePlayer = SubStatePlayer()
+    @ObservedObject var subStatePlayer = SubStatePlayer()
     
     let keySize: CGFloat = 25
     @State var selectedKey: Int = 0
@@ -19,6 +19,7 @@ struct ContentView: View {
     @State var keyDragId: Int = 0
     
     @State var navigationState: Int = 0
+    
     
     var body: some View {
         ZStack {
@@ -47,6 +48,8 @@ struct ContentView: View {
 
                 SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
                 StateNavigation(navigationState: $navigationState, slideOpen: $slideOpen, selectedKey: $selectedKey, allKeys: $allKeys)
+                Text("Track Time \(subStatePlayer.trackTime)")
+                    .foregroundColor(Color.black)
             }
             .offset(x: 0, y: -30)
             .animation(.default)

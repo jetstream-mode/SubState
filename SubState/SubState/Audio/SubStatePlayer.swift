@@ -16,6 +16,8 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
     
     var audioTimer: Timer?
     
+    @Published var trackTime = ""
+    
     //audio pulse
     var audioPulse: CGFloat = 0.0
     
@@ -62,11 +64,22 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
     }
     
     @objc func audioUpdate() {
-        debugPrint("audio update")
+        let minutes = secondsToMinutesSeconds(seconds: Int(audioPlayer.currentTime))
+        let duration = secondsToMinutesSeconds(seconds: Int(audioPlayer.duration))
+        
+        trackTime = updatedTrackTime(m: minutes.0, s: minutes.1, dm: duration.0, ds: duration.1)
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         debugPrint("audio complete")
     }
     
+    func secondsToMinutesSeconds (seconds : Int) -> (Int, Int) {
+        return ((seconds % 3600) / 60, (seconds % 3600) % 60)
+    }
+    
+    func updatedTrackTime(m: Int, s: Int, dm: Int, ds: Int) -> String {
+        //print("m ", m, " .. ", s)
+        return String(format: "%02d", m) + ":" + String(format: "%02d", s) + " / " + String(format: "%02d", dm) + ":" + String(format: "%02d", ds)
+    }
 }
