@@ -96,24 +96,24 @@ struct TrackScrollList: View {
     private func normalizeSoundLevel(level: Float) -> CGFloat {
         let level = max(0.2, CGFloat(level) + 25) / 2 // between 0.1 and 25
         
-        return CGFloat(level * (1400 / 25)) // scaled to max at 300 (our height of our bar)
+        return CGFloat(level * (1000 / 25)) // scaled to max at 300 (our height of our bar)
     }
     
     var body: some View {
         
         GeometryReader { geometry in
-            ZStack(alignment: .leading) {
+            ZStack(alignment: .topLeading) {
                 Rectangle()
                     .fill(LinearGradient(gradient: Gradient(colors: [.gray, .offWhite]), startPoint: .top, endPoint: .bottomTrailing))
                     .frame(width: 50, height: geometry.size.height)
                     .offset(x: 50)
                 
-                HStack(spacing: 1) {
+                HStack(alignment: .top, spacing: 1) {
                     ForEach(soundSamples, id: \.self) { level in
                         SoundBarView(soundValue: self.normalizeSoundLevel(level: level))
                     }
                 }
-                .offset(x: 50)
+                .offset(x: 50, y: 0)
                 
                                 
                 VStack(alignment: .leading, spacing: 0) {
