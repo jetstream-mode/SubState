@@ -11,6 +11,7 @@ struct ContentView: View {
     @State var tracks: [Tracks] = Bundle.main.decode([Tracks].self, from: "tracks.json")
     @ObservedObject var subStatePlayer = SubStatePlayer()
     @State var currentTime: String = ""
+    @State var soundSamples: [Float] = []
     
     let keySize: CGFloat = 25
     @State var selectedKey: Int = 0
@@ -30,7 +31,7 @@ struct ContentView: View {
             VStack(alignment: .leading) {
                 //state 0
                 if navigationState == 0 {
-                    TrackScrollList(currentTime: $currentTime, navigationState: $navigationState, tracks: $tracks, selectedKey: $selectedKey)
+                    TrackScrollList(currentTime: $currentTime, soundSamples: $soundSamples, navigationState: $navigationState, tracks: $tracks, selectedKey: $selectedKey)
                         //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
                         .transition(AnyTransition.identity)
                 } else if navigationState == 1 {
@@ -67,6 +68,9 @@ struct ContentView: View {
             .onChange(of: subStatePlayer.trackTime) { newTime in
                 currentTime = newTime
             }
+            .onChange(of: subStatePlayer.soundSamples) { samples in
+                soundSamples = samples
+            }
             .onAppear {
                 //store state eventually instead of starting at 0
                 subStatePlayer.playTrack(track: tracks[0].fileName)
@@ -81,12 +85,20 @@ struct ContentView: View {
 
 struct TrackScrollList: View {
     @Binding var currentTime: String
+    @Binding var soundSamples: [Float]
     @Binding var navigationState: Int
     @Binding var tracks: [Tracks]
     @Binding var selectedKey: Int
     var currentYOffset: CGFloat {
         return -((CGFloat(selectedKey) * 50) - 200)
     }
+    
+    private func normalizeSoundLevel(level: Float) -> CGFloat {
+        let level = max(0.2, CGFloat(level) + 25) / 2 // between 0.1 and 25
+        
+        return CGFloat(level * (1400 / 25)) // scaled to max at 300 (our height of our bar)
+    }
+    
     var body: some View {
         
         GeometryReader { geometry in
@@ -95,6 +107,14 @@ struct TrackScrollList: View {
                     .fill(LinearGradient(gradient: Gradient(colors: [.gray, .offWhite]), startPoint: .top, endPoint: .bottomTrailing))
                     .frame(width: 50, height: geometry.size.height)
                     .offset(x: 50)
+                
+                HStack(spacing: 1) {
+                    ForEach(soundSamples, id: \.self) { level in
+                        SoundBarView(soundValue: self.normalizeSoundLevel(level: level))
+                    }
+                }
+                .offset(x: 50)
+                
                                 
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(tracks) { track in
@@ -116,6 +136,19 @@ struct TrackScrollList: View {
                 
             }
             .animation(.default)
+        }
+    }
+}
+
+struct SoundBarView: View {
+    var soundValue: CGFloat
+    
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .foregroundColor(.black)
+                .frame(width: 1, height: soundValue)
+                .opacity(0.2)
         }
     }
 }

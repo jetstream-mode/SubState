@@ -17,7 +17,7 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
     var audioTimer: Timer?
     
     private var currentSample: Int = 0
-    private let numberOfSamples: Int = 20
+    private let numberOfSamples: Int = 25
     
     @Published var trackTime = ""
     @Published public var soundSamples: [Float] = []
@@ -29,7 +29,7 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
         super.init()
         //self.playTrack(track: tracks[0].fileName)
         self.audioTimer?.invalidate()
-        self.audioTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.audioUpdate), userInfo: nil, repeats: true)
+        self.audioTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(self.audioUpdate), userInfo: nil, repeats: true)
         
         self.soundSamples = [Float](repeating: .zero, count: numberOfSamples)
     }
@@ -79,8 +79,6 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
         self.audioPlayer.updateMeters()
         self.soundSamples[self.currentSample] = self.audioPlayer.averagePower(forChannel: 0)
         self.currentSample = (self.currentSample + 1) % self.numberOfSamples
-        
-        debugPrint("sound samples ", self.soundSamples)
         
     }
     
