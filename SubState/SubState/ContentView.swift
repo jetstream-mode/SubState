@@ -38,7 +38,7 @@ struct ContentView: View {
                     //state 1
                     CorridorView(currentIndex: $selectedKey) {
                         ForEach(0..<12) { value in
-                            SlidingEntry(doorIndex: value, tracks: $tracks, currentTime: $currentTime, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
+                            SlidingEntry(doorIndex: value, tracks: $tracks, soundSamples: $soundSamples, currentTime: $currentTime, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
                         }
                     }
                     //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
@@ -46,6 +46,7 @@ struct ContentView: View {
                     .offset(y: -65)
                     keyGrid(navigationState: $navigationState, selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys, keyDragId: $keyDragId)
                         .offset(y: -40)
+                        .transition(AnyTransition.identity)
                 }
 
                 SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
@@ -83,7 +84,7 @@ struct ContentView: View {
     }
 }
 
-struct TrackScrollList: View {
+struct TrackScrollList: View, NormalizeSound {
     @Binding var currentTime: String
     @Binding var soundSamples: [Float]
     @Binding var navigationState: Int
@@ -92,13 +93,7 @@ struct TrackScrollList: View {
     var currentYOffset: CGFloat {
         return -((CGFloat(selectedKey) * 50) - 200)
     }
-    
-    private func normalizeSoundLevel(level: Float) -> CGFloat {
-        let level = max(0.2, CGFloat(level) + 25) / 2 // between 0.1 and 25
         
-        return CGFloat(level * (1000 / 25)) // scaled to max at 300 (our height of our bar)
-    }
-    
     var body: some View {
         
         GeometryReader { geometry in
@@ -110,7 +105,7 @@ struct TrackScrollList: View {
                 
                 HStack(alignment: .top, spacing: 1) {
                     ForEach(soundSamples, id: \.self) { level in
-                        SoundBarView(soundValue: self.normalizeSoundLevel(level: level))
+                        SoundBarView(soundValue: self.normalizeSoundLevel(level: level), barColor: .blue, barOpacity: 0.5, barWidth: 1.0)
                     }
                 }
                 .offset(x: 50, y: 0)
@@ -142,13 +137,16 @@ struct TrackScrollList: View {
 
 struct SoundBarView: View {
     var soundValue: CGFloat
+    let barColor: Color
+    let barOpacity: Double
+    let barWidth: CGFloat
     
     var body: some View {
         ZStack {
             Rectangle()
-                .foregroundColor(.black)
-                .frame(width: 1, height: soundValue)
-                .opacity(0.2)
+                .foregroundColor(barColor)
+                .frame(width: barWidth, height: soundValue)
+                .opacity(barOpacity)
         }
     }
 }
@@ -311,7 +309,6 @@ struct StateNavigation: View {
             HStack {
                 Button(action: {
                     navigationState = 0
-                    debugPrint("nav state ", navigationState)
                 }) {
                     NavBridge(parentSize: 12)
                         .foregroundColor(.gray)
@@ -320,7 +317,6 @@ struct StateNavigation: View {
                 .buttonStyle(SquareButtonStyle())
                 Button(action: {
                     navigationState = 1
-                    debugPrint("nav state ", navigationState)
                 }) {
                     NavCorridor(parentSize: 12)
                         .foregroundColor(.gray)
@@ -329,7 +325,6 @@ struct StateNavigation: View {
                 .buttonStyle(SquareButtonStyle())
                 Button(action: {
                     navigationState = 2
-                    debugPrint("nav state ", navigationState)
                 }) {
                     NavLog(parentSize: 12)
                         .foregroundColor(.gray)
@@ -868,6 +863,7 @@ struct SquareButtonStyle: ButtonStyle {
 struct SlidingEntry: View {
     let doorIndex: Int
     @Binding var tracks: [Tracks]
+    @Binding var soundSamples: [Float]
     @Binding var currentTime: String
     @Binding var slideOpen: Bool
     @Binding var selectedKey: Int
@@ -882,11 +878,11 @@ struct SlidingEntry: View {
                         .foregroundColor(.gray)
                         .opacity(slideOpen ? 1 : 0)
                         .offset(y: 50)
-                    LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: $tracks)
+                    LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: $tracks, soundSamples: $soundSamples)
                         .offset(x: (slideOpen && selectedKey == doorIndex) ? -(geometry.size.width*0.60) : 0)
                         //.animation(Animation.easeInOut(duration: 0.4).delay(0.2))
                         .animation(Animation.easeInOut(duration: 0.4))
-                    RightKeyDoor(slideOpen: $slideOpen, keyDragId: $keyDragId, selectedKey: $selectedKey)
+                    RightKeyDoor(slideOpen: $slideOpen, keyDragId: $keyDragId, selectedKey: $selectedKey, soundSamples: $soundSamples)
                         .offset(x: (slideOpen && selectedKey == doorIndex) ? geometry.size.width*0.35 : 0)
                         .animation(Animation.easeInOut(duration: 0.4))
                 }
@@ -923,24 +919,37 @@ struct HallwayTrack: View {
     }
 }
 
-struct LeftDisplayDoor: View {
+struct LeftDisplayDoor: View, NormalizeSound {
     
     let doorIndex: Int
     @Binding var currentTime: String
     @Binding var tracks: [Tracks]
+    @Binding var soundSamples: [Float]
     
     var body: some View {
         GeometryReader { geometry in
-            ZStack {
+            ZStack(alignment: .bottom) {
                 LeftDisplayBackPlateRaw()
                     .foregroundColor(.white)
                     .frame(width: geometry.size.width*0.70, height: 400)
-                DoorIdPanel(doorIndex: doorIndex, currentTime: $currentTime)
-                    .frame(width: 110, height: 40, alignment: .topLeading)
-                    .offset(x: -50, y: 38)
-                SongInfoPanel(doorIndex: doorIndex, tracks: $tracks)
-                    .frame(width: 140, height: 50, alignment: .topLeading)
-                    .offset(x: -30, y: 150)
+/*
+                HStack(alignment: .bottom, spacing: 0) {
+                    ForEach(soundSamples, id: \.self) { level in
+                        SoundBarView(soundValue: self.normalizeSoundLevel(level: level, height: 100), barColor: .gray, barOpacity: 1.0, barWidth: 1.0)
+                    }
+                }
+                .offset(x: -70, y: -180)
+ */
+                
+                VStack(alignment: .leading) {
+                    DoorIdPanel(doorIndex: doorIndex, currentTime: $currentTime, soundSamples: $soundSamples)
+                        .frame(width: 110, height: 40, alignment: .bottomLeading)
+                        //.offset(x: -50, y: -142)
+                    SongInfoPanel(doorIndex: doorIndex, tracks: $tracks)
+                        .frame(width: 140, height: 50, alignment: .bottomLeading)
+                        .offset(x: 5, y: 35)
+                }
+                .offset(x: -40, y: -75)
 
             }
         }
@@ -971,6 +980,7 @@ struct RightKeyDoor: View {
     @Binding var slideOpen: Bool
     @Binding var keyDragId: Int
     @Binding var selectedKey: Int
+    @Binding var soundSamples: [Float]
     
     var body: some View {
         GeometryReader { geometry in
@@ -983,7 +993,7 @@ struct RightKeyDoor: View {
                     .rotationEffect(.degrees(slideOpen ? 90 : 0))
                     .frame(width: 40, height: 40)
                     .offset(x: (geometry.size.width/2)-20, y: 50)
-                KeyDropPanel(selectedKey: $selectedKey, slideOpen: $slideOpen)
+                KeyDropPanel(selectedKey: $selectedKey, slideOpen: $slideOpen, soundSamples: $soundSamples)
                     .frame(width: 80, height: 80)
                     .offset(x: (geometry.size.width*0.70)-14, y: 130)
                     .onDrop(
@@ -1216,10 +1226,11 @@ struct UnlockHalfCircle: Shape {
     }
 }
 
-struct KeyDropPanel: View {
+struct KeyDropPanel: View, NormalizeSound {
     
     @Binding var selectedKey: Int
     @Binding var slideOpen: Bool
+    @Binding var soundSamples: [Float]
     
     var body: some View {
         
@@ -1229,6 +1240,7 @@ struct KeyDropPanel: View {
                 KeyDropPlateRaw()
                     .foregroundColor(.gray)
                     .loweredShapeStyle()
+
                 if selectedKey == 0 && !slideOpen {
                     Image("metalA")
                         .frame(width: geometry.size.width/3, height: geometry.size.height/3)
@@ -1239,7 +1251,6 @@ struct KeyDropPanel: View {
                         .transition(.asymmetric(insertion: .softTransition, removal: .hardTransition))
                         //.transition(AnyTransition.identity)
 
- 
                 } else if selectedKey == 1 && !slideOpen {
                     Image("metalA")
                         .frame(width: geometry.size.width/3, height: geometry.size.height/3)
@@ -1249,7 +1260,6 @@ struct KeyDropPanel: View {
                         .shadow(radius: 5)
                         .transition(.asymmetric(insertion: .softTransition, removal: .hardTransition))
                         //.transition(AnyTransition.identity)
- 
  
                 } else if selectedKey == 2 && !slideOpen {
                     Image("metalA")
@@ -1268,9 +1278,10 @@ struct KeyDropPanel: View {
     }
 }
 
-struct DoorIdPanel: View {
+struct DoorIdPanel: View, NormalizeSound {
     let doorIndex: Int
     @Binding var currentTime: String
+    @Binding var soundSamples: [Float]
     
     var formattedIndex: String {
         return (doorIndex < 10) ? "0\(doorIndex)" : "\(doorIndex)"
@@ -1281,6 +1292,15 @@ struct DoorIdPanel: View {
             DoorIdPlateRaw()
                 .foregroundColor(.gray)
                 .loweredShapeStyle()
+            /*
+            HStack(alignment: .bottom, spacing: 0) {
+                ForEach(soundSamples, id: \.self) { level in
+                    SoundBarView(soundValue: self.normalizeSoundLevel(level: level, height: 25), barColor: .white, barOpacity: 0.8, barWidth: 1.0)
+                }
+            }
+            .offset(x: 0, y: 14)
+            .scaleEffect(x: 4, anchor: .center)
+ */
             Text("\(currentTime)")
                 //.font(.system(size: 50))
                 .font(.custom("DIN Condensed Bold", size: 20))
@@ -1388,9 +1408,10 @@ struct NavBridge: View {
     var parentSize: CGFloat
     
     var body: some View {
-        ZStack {
+        VStack {
             BridgeRaw()
                 .frame(width: parentSize, height: parentSize)
+                .offset(y: 5)
         }
     }
 }
@@ -1399,8 +1420,12 @@ struct NavCorridor: View {
     var parentSize: CGFloat
     
     var body: some View {
-        ZStack {
-            BridgeRaw()
+        HStack(spacing: 2) {
+            Rectangle()
+                .frame(width: parentSize, height: parentSize)
+            Rectangle()
+                .frame(width: parentSize, height: parentSize)
+            Rectangle()
                 .frame(width: parentSize, height: parentSize)
         }
     }
@@ -1411,7 +1436,7 @@ struct NavLog: View {
     
     var body: some View {
         ZStack {
-            BridgeRaw()
+            Circle()
                 .frame(width: parentSize, height: parentSize)
         }
     }
@@ -1420,9 +1445,25 @@ struct NavLog: View {
 struct BridgeRaw: Shape {
     func path(in rect: CGRect) -> Path {
         Path { path in
-            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height/2)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: rect.height/2))
-            path.addLine(to: CGPoint(x: rect.size.width, y: rect.height + (rect.height/2)))
+            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-3)))
+            path.addLine(to: CGPoint(x: rect.size.width, y: -(rect.height-3)))
+            path.closeSubpath()
+            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height-6)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-6)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-9)))
+            path.addLine(to: CGPoint(x: rect.size.width, y: -(rect.height-9)))
+            path.closeSubpath()
+            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height-12)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-12)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-15)))
+            path.addLine(to: CGPoint(x: rect.size.width, y: -(rect.height-15)))
+            path.closeSubpath()
+            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height-18)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-18)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-21)))
+            path.addLine(to: CGPoint(x: rect.size.width, y: -(rect.height-21)))
             path.closeSubpath()
         }
     }
@@ -1442,9 +1483,10 @@ struct CorridorRaw: Shape {
 struct LogRaw: Shape {
     func path(in rect: CGRect) -> Path {
         Path { path in
-            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height/2)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: rect.height/2))
-            path.addLine(to: CGPoint(x: rect.size.width, y: rect.height + (rect.height/2)))
+            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height-18)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-18)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-21)))
+            path.addLine(to: CGPoint(x: rect.size.width, y: -(rect.height-21)))
             path.closeSubpath()
         }
     }

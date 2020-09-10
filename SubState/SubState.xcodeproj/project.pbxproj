@@ -35,6 +35,7 @@
 		D280FC732502EF87002E3EEB /* tracks.json in Resources */ = {isa = PBXBuildFile; fileRef = D280FC712502EDC9002E3EEB /* tracks.json */; };
 		D280FC752507EC65002E3EEB /* TracksContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FC742507EC65002E3EEB /* TracksContainer.swift */; };
 		D280FC932508376A002E3EEB /* SubStatePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FC922508376A002E3EEB /* SubStatePlayer.swift */; };
+		D2E9EBF3250A9A9500AEBF89 /* NormalizeSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E9EBF2250A9A9500AEBF89 /* NormalizeSound.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,6 +90,7 @@
 		D280FC712502EDC9002E3EEB /* tracks.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tracks.json; sourceTree = "<group>"; };
 		D280FC742507EC65002E3EEB /* TracksContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracksContainer.swift; sourceTree = "<group>"; };
 		D280FC922508376A002E3EEB /* SubStatePlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubStatePlayer.swift; sourceTree = "<group>"; };
+		D2E9EBF2250A9A9500AEBF89 /* NormalizeSound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NormalizeSound.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,6 +145,7 @@
 				D280FC192500589E002E3EEB /* Data */,
 				D280FC162500558C002E3EEB /* Fonts */,
 				D280FBFD250054C0002E3EEB /* Keys */,
+				D2E9EBF1250A847F00AEBF89 /* Protocols */,
 				D280FBCA24FF0689002E3EEB /* SubStateApp.swift */,
 				D280FBCC24FF0689002E3EEB /* ContentView.swift */,
 				D280FBFB24FF08C2002E3EEB /* MiscShapes.swift */,
@@ -226,6 +229,14 @@
 				D280FC922508376A002E3EEB /* SubStatePlayer.swift */,
 			);
 			path = Audio;
+			sourceTree = "<group>";
+		};
+		D2E9EBF1250A847F00AEBF89 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				D2E9EBF2250A9A9500AEBF89 /* NormalizeSound.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -380,6 +391,7 @@
 				D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */,
 				D280FC6E2502E9FE002E3EEB /* Bundle-Decodable.swift in Sources */,
 				D280FBFA24FF074D002E3EEB /* KeyDrag.swift in Sources */,
+				D2E9EBF3250A9A9500AEBF89 /* NormalizeSound.swift in Sources */,
 				D280FC702502EA7E002E3EEB /* Tracks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
