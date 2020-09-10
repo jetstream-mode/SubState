@@ -16,7 +16,11 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
     
     var audioTimer: Timer?
     
+    private var currentSample: Int = 0
+    private let numberOfSamples: Int = 20
+    
     @Published var trackTime = ""
+    @Published public var soundSamples: [Float] = []
     
     //audio pulse
     var audioPulse: CGFloat = 0.0
@@ -25,7 +29,9 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
         super.init()
         //self.playTrack(track: tracks[0].fileName)
         self.audioTimer?.invalidate()
-        self.audioTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.audioUpdate), userInfo: nil, repeats: true)
+        self.audioTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.audioUpdate), userInfo: nil, repeats: true)
+        
+        self.soundSamples = [Float](repeating: .zero, count: numberOfSamples)
     }
     
     func stopPlayer() {
@@ -68,6 +74,14 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
         let duration = secondsToMinutesSeconds(seconds: Int(audioPlayer.duration))
         
         trackTime = updatedTrackTime(m: minutes.0, s: minutes.1, dm: duration.0, ds: duration.1)
+        
+        //samples
+        self.audioPlayer.updateMeters()
+        self.soundSamples[self.currentSample] = self.audioPlayer.averagePower(forChannel: 0)
+        self.currentSample = (self.currentSample + 1) % self.numberOfSamples
+        
+        debugPrint("sound samples ", self.soundSamples)
+        
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {

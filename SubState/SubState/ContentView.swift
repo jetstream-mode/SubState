@@ -32,19 +32,19 @@ struct ContentView: View {
                 if navigationState == 0 {
                     TrackScrollList(currentTime: $currentTime, navigationState: $navigationState, tracks: $tracks, selectedKey: $selectedKey)
                         //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
-                        //.transition(AnyTransition.identity)
+                        .transition(AnyTransition.identity)
                 } else if navigationState == 1 {
                     //state 1
                     CorridorView(currentIndex: $selectedKey) {
                         ForEach(0..<12) { value in
-                            SlidingEntry(doorIndex: value, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
+                            SlidingEntry(doorIndex: value, tracks: $tracks, currentTime: $currentTime, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
                         }
                     }
                     //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
                     //.transition(AnyTransition.identity)
                     .offset(y: -65)
                     keyGrid(navigationState: $navigationState, selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys, keyDragId: $keyDragId)
-                        .offset(y: -65)
+                        .offset(y: -40)
                 }
 
                 SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
@@ -105,7 +105,7 @@ struct TrackScrollList: View {
                         }) {
                             TrackCell(selectedKey: $selectedKey, currentTime: $currentTime, track: track)
                                 .id(Int(track.id))
-                                //.transition(.asymmetric(insertion: .slide, removal: .scale(scale: 0.0, anchor: .center)))
+                                //.id(UUID())
                                 .transition(.slide)
                         }
 
@@ -834,6 +834,8 @@ struct SquareButtonStyle: ButtonStyle {
 
 struct SlidingEntry: View {
     let doorIndex: Int
+    @Binding var tracks: [Tracks]
+    @Binding var currentTime: String
     @Binding var slideOpen: Bool
     @Binding var selectedKey: Int
     @Binding var keyDragId: Int
@@ -847,7 +849,7 @@ struct SlidingEntry: View {
                         .foregroundColor(.gray)
                         .opacity(slideOpen ? 1 : 0)
                         .offset(y: 50)
-                    LeftDisplayDoor(doorIndex: doorIndex)
+                    LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: $tracks)
                         .offset(x: (slideOpen && selectedKey == doorIndex) ? -(geometry.size.width*0.60) : 0)
                         //.animation(Animation.easeInOut(duration: 0.4).delay(0.2))
                         .animation(Animation.easeInOut(duration: 0.4))
@@ -891,17 +893,19 @@ struct HallwayTrack: View {
 struct LeftDisplayDoor: View {
     
     let doorIndex: Int
+    @Binding var currentTime: String
+    @Binding var tracks: [Tracks]
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 LeftDisplayBackPlateRaw()
-                    .foregroundColor(.gray)
+                    .foregroundColor(.white)
                     .frame(width: geometry.size.width*0.70, height: 400)
-                DoorIdPanel(doorIndex: doorIndex)
+                DoorIdPanel(doorIndex: doorIndex, currentTime: $currentTime)
                     .frame(width: 110, height: 40, alignment: .topLeading)
                     .offset(x: -50, y: 38)
-                SongInfoPanel(doorIndex: doorIndex)
+                SongInfoPanel(doorIndex: doorIndex, tracks: $tracks)
                     .frame(width: 140, height: 50, alignment: .topLeading)
                     .offset(x: -30, y: 150)
 
@@ -939,7 +943,7 @@ struct RightKeyDoor: View {
         GeometryReader { geometry in
             ZStack {
                 RightBackPlateRaw()
-                    .foregroundColor(.gray)
+                    .foregroundColor(.white)
                     .frame(width: geometry.size.width*0.30, height: 400)
                     .offset(x: geometry.size.width*0.70)
                 UnlockCirclePanel()
@@ -1094,6 +1098,12 @@ struct SoftTransitionModifier: ViewModifier {
     }
 }
 
+struct SlideTransitionModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content.transition(.slide)
+    }
+}
+
 struct CornerRotateModifier: ViewModifier {
     let amount: Double
     let anchor: UnitPoint
@@ -1140,6 +1150,13 @@ extension AnyTransition {
             active: CornerRotateModifier(amount: -90, anchor: .topLeading),
             identity: CornerRotateModifier(amount: 0, anchor: .topLeading)
         )
+    }
+    
+    static var slideTransition: AnyTransition { get {
+        AnyTransition.modifier(
+            active: SlideTransitionModifier(),
+            identity: SlideTransitionModifier())
+        }
     }
     
 }
@@ -1220,6 +1237,7 @@ struct KeyDropPanel: View {
 
 struct DoorIdPanel: View {
     let doorIndex: Int
+    @Binding var currentTime: String
     
     var formattedIndex: String {
         return (doorIndex < 10) ? "0\(doorIndex)" : "\(doorIndex)"
@@ -1230,9 +1248,9 @@ struct DoorIdPanel: View {
             DoorIdPlateRaw()
                 .foregroundColor(.gray)
                 .loweredShapeStyle()
-            Text("\(formattedIndex)")
+            Text("\(currentTime)")
                 //.font(.system(size: 50))
-                .font(.custom("DIN Condensed Bold", size: 50))
+                .font(.custom("DIN Condensed Bold", size: 20))
                 .foregroundColor(.offWhite)
                 .offset(y: 8)
         }
@@ -1241,19 +1259,17 @@ struct DoorIdPanel: View {
 
 struct SongInfoPanel: View {
     let doorIndex: Int
+    @Binding var tracks: [Tracks]
     
     var body: some View {
         ZStack {
             VStack(alignment: .leading) {
-                Text("3:03")
+                Text("\(tracks[doorIndex].song)")
                     .font(.custom("DIN Condensed Bold", size: 16))
-                    .foregroundColor(.offWhite)
-                Text("Makeup & Vanity Set")
-                    .font(.custom("DIN Condensed Bold", size: 16))
-                    .foregroundColor(.offWhite)
-                Text("Homecoming")
-                    .font(.custom("DIN Condensed Bold", size: 16))
-                    .foregroundColor(.offWhite)
+                    .foregroundColor(.gray)
+                Text("\(tracks[doorIndex].artist)")
+                    .font(.custom("DIN Condensed Bold", size: 12))
+                    .foregroundColor(.gray)
             }
         }
     }
