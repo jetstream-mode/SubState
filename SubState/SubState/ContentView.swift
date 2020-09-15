@@ -7,11 +7,18 @@
 
 import SwiftUI
 
+
+
 struct ContentView: View {
     @State var tracks: [Tracks] = Bundle.main.decode([Tracks].self, from: "tracks.json")
     @ObservedObject var subStatePlayer = SubStatePlayer()
     @State var currentTime: String = ""
     @State var soundSamples: [Float] = []
+    @State var audioPulse: Int = 0
+    //wave properties
+    @State var phase: Double = 0.0
+    @State var waveStrength: Double = 0.0
+    @State var waveFrequency: Double = 10.0
     
     let keySize: CGFloat = 25
     @State var selectedKey: Int = 0
@@ -26,8 +33,66 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             Color.offWhite
-//            HallwayTrack()
-//                .offset(y: -55)
+
+            if navigationState == 1 && slideOpen {
+                /*
+                EmitterView(images: ["homecoming"], particleCount: 20, creationPoint: .init(x: 0.5, y: -0.1), creationRange: CGSize(width: 1, height: 0), colors: [.red, .blue], angle: Angle(degrees: 180), angleRange: Angle(radians: .pi / 4), rotationRange: Angle(radians: .pi * 2), rotationSpeed: Angle(radians: .pi), scale: 0.6, speed: 1200, speedRange: 800, animation: Animation.linear(duration: 15).repeatForever(autoreverses: false), animationDelayThreshold: 5)
+                 
+                 AnyView(KeyOneRaw()
+                             .foregroundColor(.gray)
+                             .frame(width: 10, height: 10))
+                 
+                 particleViews: [AnyView(KeyOneRaw()
+                                 .foregroundColor(.gray)
+                                 .frame(width: 50, height: 50)
+                                             .blur(radius: CGFloat.random(in: 0...10))
+                 
+                 AnyView(Image("confetti"))
+ */
+                if selectedKey == 1 {
+                    EmitterView(
+                        particleViews: [AnyView(KeyOneRaw()
+                                                    .foregroundColor(.gray)
+                                                    .frame(width: 10, height: 10))],
+                        particleCount: 20 + audioPulse,
+                        creationPoint: .leading,
+                        creationRange: CGSize(width: 0, height: 0),
+                        colors: [.gray, .red],
+                        alphaSpeed: 10,
+                        angle: Angle(degrees: 90),
+                        angleRange: Angle(degrees: 0),
+                        //rotation: Angle(degrees: Double(audioPulse)),
+                        //rotationRange: Angle(degrees: Double(audioPulse)),
+                        //rotationSpeed: Angle(degrees: Double(audioPulse)),
+                        scale: CGFloat(audioPulse) * 0.3,
+                        scaleRange: CGFloat(audioPulse) * 0.3,
+                        scaleSpeed: 0.4,
+                        speed: 1200,
+                        speedRange: Double(audioPulse * 25),
+                        animation: Animation.linear(duration: 2).repeatForever(autoreverses: true).delay(0.5), animationDelayThreshold: 5
+                        )
+                    .offset(x: 0)
+                } else if selectedKey == 0 {
+                    ZStack(alignment: .top) {
+                        ForEach(0..<20) { i in
+                            // 100 30 0
+                            Wave(strength: waveStrength, frequency: waveFrequency, phase: phase)
+                                .stroke(Color.gray.opacity(Double(i) / 10), lineWidth: CGFloat(audioPulse))
+                                .offset(y: CGFloat(i) * 15)
+                        }
+                    }
+                    .onAppear {
+                        withAnimation(Animation.linear(duration: 0.7).repeatForever(autoreverses: false)) {
+                            self.phase = .pi * 2
+                        }
+                    }
+                    .onDisappear {
+                        self.phase = 0.0
+                    }
+                }
+
+            }
+            
             VStack(alignment: .leading) {
                 //state 0
                 if navigationState == 0 {
@@ -36,6 +101,7 @@ struct ContentView: View {
                         .transition(AnyTransition.identity)
                 } else if navigationState == 1 {
                     //state 1
+                    
                     CorridorView(currentIndex: $selectedKey) {
                         ForEach(0..<12) { value in
                             SlidingEntry(doorIndex: value, tracks: $tracks, soundSamples: $soundSamples, currentTime: $currentTime, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
@@ -44,9 +110,14 @@ struct ContentView: View {
                     //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
                     //.transition(AnyTransition.identity)
                     .offset(y: -65)
+/*
                     keyGrid(navigationState: $navigationState, selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys, keyDragId: $keyDragId)
                         .offset(y: -40)
                         .transition(AnyTransition.identity)
+ */
+ 
+
+
                 }
 
                 SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
@@ -71,6 +142,12 @@ struct ContentView: View {
             }
             .onChange(of: subStatePlayer.soundSamples) { samples in
                 soundSamples = samples
+            }
+            .onChange(of: subStatePlayer.audioPulse) { pulse in
+                audioPulse = pulse
+                //phase = Double(pulse)
+                waveStrength = Double(pulse*4)
+                //waveFrequency = Double(pulse)
             }
             .onAppear {
                 //store state eventually instead of starting at 0
@@ -489,6 +566,8 @@ struct keyGrid: View {
     
     @Binding var keyDragId: Int
     
+    @State var rotation: Angle = Angle(degrees: 0)
+    
     var body: some View {
         
         LazyVGrid(columns: gridItemLayout, spacing: 45) {
@@ -515,6 +594,16 @@ struct keyGrid: View {
                         .foregroundColor(.gray)
                         .frame(width: keySize, height: keySize)
                         .transition(.scale)
+                }
+                .rotationEffect(rotation)
+                .onAppear {
+                    let baseAnimation = Animation.easeInOut(duration: 1)
+                    let repeated = baseAnimation.repeatForever(autoreverses: true)
+                    
+                    return withAnimation(repeated) {
+                        self.rotation = Angle(degrees: 180)
+
+                    }
                 }
                 .onDrag {
                     
@@ -874,10 +963,37 @@ struct SlidingEntry: View {
 
             VStack {
                 ZStack {
+                    /*
                     Text("Song info for: \(doorIndex)")
                         .foregroundColor(.gray)
                         .opacity(slideOpen ? 1 : 0)
                         .offset(y: 50)
+                     images: ["line", "spark", "confetti"],
+ */
+                    /*
+                    EmitterView(
+                        images: ["homecoming"],
+                        particleCount: 20,
+                        creationPoint: .leading,
+                        creationRange: CGSize(width: 0, height: 0.1),
+                        colors: [.blue, .red],
+                        alphaSpeed: -1,
+                        angle: Angle(degrees: 90),
+                        angleRange: Angle(degrees: 10),
+                        scale: 0.4,
+                        scaleRange: 0.4,
+                        scaleSpeed: 0.4,
+                        speed: 1200,
+                        speedRange: 1200,
+                        animation: Animation.linear(duration: 2).repeatForever(autoreverses: true).delay(0.5), animationDelayThreshold: 5,
+                        blendMode: .screen
+                        )
+ */
+                    if slideOpen {
+
+                    }
+
+                    
                     LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: $tracks, soundSamples: $soundSamples)
                         .offset(x: (slideOpen && selectedKey == doorIndex) ? -(geometry.size.width*0.60) : 0)
                         //.animation(Animation.easeInOut(duration: 0.4).delay(0.2))
@@ -989,17 +1105,22 @@ struct RightKeyDoor: View {
                     .foregroundColor(.white)
                     .frame(width: geometry.size.width*0.30, height: 400)
                     .offset(x: geometry.size.width*0.70)
-                UnlockCirclePanel()
+
+                UnlockCirclePanel(slideOpen: $slideOpen)
                     .rotationEffect(.degrees(slideOpen ? 90 : 0))
                     .frame(width: 40, height: 40)
                     .offset(x: (geometry.size.width/2)-20, y: 50)
+
+
                 KeyDropPanel(selectedKey: $selectedKey, slideOpen: $slideOpen, soundSamples: $soundSamples)
                     .frame(width: 80, height: 80)
                     .offset(x: (geometry.size.width*0.70)-14, y: 130)
+                    /*
                     .onDrop(
                         of: [KeyDrag.keyDragIdentifier],
                         delegate: KeyDragDropDelegate(keyDragId: $keyDragId, slideOpen: $slideOpen, selectedKey: $selectedKey)
                     )
+ */
 
             }
         }
@@ -1205,14 +1326,21 @@ extension AnyTransition {
 }
 
 struct UnlockCirclePanel: View {
+    @Binding var slideOpen: Bool
+    
     var body: some View {
         ZStack {
-            Circle()
-                .foregroundColor(.offWhite)
-                .circleDepthStyle()
-            UnlockHalfCircle()
-                .foregroundColor(.gray)
-                .opacity(0.8)
+            Button(action: {
+                slideOpen.toggle()
+            }) {
+                Circle()
+                    .foregroundColor(.offWhite)
+                    .circleDepthStyle()
+                UnlockHalfCircle()
+                    .foregroundColor(.gray)
+                    .opacity(0.8)
+            }
+
             
         }
     }
@@ -1491,6 +1619,9 @@ struct LogRaw: Shape {
         }
     }
 }
+
+
+
 
 
 

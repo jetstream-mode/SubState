@@ -23,13 +23,14 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
     @Published public var soundSamples: [Float] = []
     
     //audio pulse
-    var audioPulse: CGFloat = 0.0
+    @Published var audioPulse: Int = 0
     
     override init() {
         super.init()
         //self.playTrack(track: tracks[0].fileName)
         self.audioTimer?.invalidate()
         self.audioTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(self.audioUpdate), userInfo: nil, repeats: true)
+        //self.audioTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.audioUpdate), userInfo: nil, repeats: true)
         
         self.soundSamples = [Float](repeating: .zero, count: numberOfSamples)
     }
@@ -80,6 +81,8 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
         self.soundSamples[self.currentSample] = self.audioPlayer.averagePower(forChannel: 0)
         self.currentSample = (self.currentSample + 1) % self.numberOfSamples
         
+        let sumSamples = soundSamples.reduce(0, +)
+        audioPulse = abs(Int(sumSamples) / soundSamples.count)
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
