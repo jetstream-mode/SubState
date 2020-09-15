@@ -109,7 +109,7 @@ struct ContentView: View {
                     }
                     //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
                     //.transition(AnyTransition.identity)
-                    .offset(y: -65)
+                    //.offset(y: -65)
 /*
                     keyGrid(navigationState: $navigationState, selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys, keyDragId: $keyDragId)
                         .offset(y: -40)
@@ -970,28 +970,7 @@ struct SlidingEntry: View {
                         .offset(y: 50)
                      images: ["line", "spark", "confetti"],
  */
-                    /*
-                    EmitterView(
-                        images: ["homecoming"],
-                        particleCount: 20,
-                        creationPoint: .leading,
-                        creationRange: CGSize(width: 0, height: 0.1),
-                        colors: [.blue, .red],
-                        alphaSpeed: -1,
-                        angle: Angle(degrees: 90),
-                        angleRange: Angle(degrees: 10),
-                        scale: 0.4,
-                        scaleRange: 0.4,
-                        scaleSpeed: 0.4,
-                        speed: 1200,
-                        speedRange: 1200,
-                        animation: Animation.linear(duration: 2).repeatForever(autoreverses: true).delay(0.5), animationDelayThreshold: 5,
-                        blendMode: .screen
-                        )
- */
-                    if slideOpen {
 
-                    }
 
                     
                     LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: $tracks, soundSamples: $soundSamples)
@@ -1018,6 +997,17 @@ struct SlidingEntry: View {
                             }
                         }
                 )
+                if !slideOpen {
+                    Button(action: {
+                        slideOpen = true
+                    }) {
+                        Text("Enter Log Entry")
+                            .font(.custom("DIN Condensed Bold", size: 21))
+                            .foregroundColor(Color.gray)
+                    }
+                    Spacer()
+                        .frame(height: 50)
+                }
             }
         }
     }
