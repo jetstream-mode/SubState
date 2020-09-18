@@ -7,10 +7,9 @@
 
 import SwiftUI
 
-
-
 struct ContentView: View {
-    @State var tracks: [Tracks] = Bundle.main.decode([Tracks].self, from: "tracks.json")
+    @DataLoader("tracks.json") private var tracks: [Tracks]
+    
     @ObservedObject var subStatePlayer = SubStatePlayer()
     @State var currentTime: String = ""
     @State var soundSamples: [Float] = []
@@ -29,7 +28,7 @@ struct ContentView: View {
     
     @State var navigationState: Int = 0
     
-    
+
     var body: some View {
         ZStack {
             Color.offWhite
@@ -96,7 +95,7 @@ struct ContentView: View {
             VStack(alignment: .leading) {
                 //state 0
                 if navigationState == 0 {
-                    TrackScrollList(currentTime: $currentTime, soundSamples: $soundSamples, navigationState: $navigationState, tracks: $tracks, selectedKey: $selectedKey)
+                    TrackScrollList(currentTime: $currentTime, soundSamples: $soundSamples, navigationState: $navigationState, tracks: tracks, selectedKey: $selectedKey)
                         //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
                         .transition(AnyTransition.identity)
                 } else if navigationState == 1 {
@@ -104,7 +103,7 @@ struct ContentView: View {
                     
                     CorridorView(currentIndex: $selectedKey) {
                         ForEach(0..<12) { value in
-                            SlidingEntry(doorIndex: value, tracks: $tracks, soundSamples: $soundSamples, currentTime: $currentTime, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
+                            SlidingEntry(doorIndex: value, tracks: tracks, soundSamples: $soundSamples, currentTime: $currentTime, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
                         }
                     }
                     //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
@@ -150,8 +149,14 @@ struct ContentView: View {
                 //waveFrequency = Double(pulse)
             }
             .onAppear {
+                //set json
+                //tracks = tracksData
+                
                 //store state eventually instead of starting at 0
                 subStatePlayer.playTrack(track: tracks[0].fileName)
+                
+
+                
             }
             
             
@@ -165,7 +170,7 @@ struct TrackScrollList: View, NormalizeSound {
     @Binding var currentTime: String
     @Binding var soundSamples: [Float]
     @Binding var navigationState: Int
-    @Binding var tracks: [Tracks]
+    var tracks: [Tracks]
     @Binding var selectedKey: Int
     var currentYOffset: CGFloat {
         return -((CGFloat(selectedKey) * 50) - 200)
@@ -951,7 +956,7 @@ struct SquareButtonStyle: ButtonStyle {
 
 struct SlidingEntry: View {
     let doorIndex: Int
-    @Binding var tracks: [Tracks]
+    var tracks: [Tracks]
     @Binding var soundSamples: [Float]
     @Binding var currentTime: String
     @Binding var slideOpen: Bool
@@ -963,17 +968,11 @@ struct SlidingEntry: View {
 
             VStack {
                 ZStack {
-                    /*
-                    Text("Song info for: \(doorIndex)")
-                        .foregroundColor(.gray)
-                        .opacity(slideOpen ? 1 : 0)
-                        .offset(y: 50)
-                     images: ["line", "spark", "confetti"],
- */
+                    if slideOpen {
+                        LogEntry(track: tracks[selectedKey])
+                    }
 
-
-                    
-                    LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: $tracks, soundSamples: $soundSamples)
+                    LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: tracks, soundSamples: $soundSamples)
                         .offset(x: (slideOpen && selectedKey == doorIndex) ? -(geometry.size.width*0.60) : 0)
                         //.animation(Animation.easeInOut(duration: 0.4).delay(0.2))
                         .animation(Animation.easeInOut(duration: 0.4))
@@ -1001,10 +1000,14 @@ struct SlidingEntry: View {
                     Button(action: {
                         slideOpen = true
                     }) {
-                        Text("Enter Log Entry")
-                            .font(.custom("DIN Condensed Bold", size: 21))
-                            .foregroundColor(Color.gray)
+//                        Text("Enter Log Entry")
+//                            .font(.custom("DIN Condensed Bold", size: 21))
+//                            .foregroundColor(Color.gray)
+                        ArrowRight(parentSize: 12)
+                            .foregroundColor(.gray)
+                            .frame(width: 25, height: 25)
                     }
+                    .buttonStyle(SquareButtonStyle())
                     Spacer()
                         .frame(height: 50)
                 }
@@ -1012,6 +1015,55 @@ struct SlidingEntry: View {
         }
     }
 }
+
+struct LogEntry: View {
+    var track: Tracks
+    @State private var entryText = "Enter Log"
+    
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Image(track.vinylFile)
+                    .resizable()
+                    .frame(width: 50, height: 50)
+                    .offset(x: 0)
+                Spacer()
+                    .frame(width: 20)
+                Text("Log Entry For \(track.song)")
+                    .font(.custom("DIN Condensed Bold", size: 18))
+                    .foregroundColor(Color.gray)
+            }
+            Text("Song background info, \nstreaming options, \nbandcamp, etc")
+                .font(.custom("DIN Condensed Bold", size: 14))
+                .foregroundColor(Color.gray)
+                .lineLimit(nil)
+            TextEditor(text: $entryText)
+                .font(.custom("DIN Condensed Bold", size: 12))
+                .foregroundColor(Color.black)
+                .background(Color.clear)
+                .border(Color.black, width: 4)
+                .lineSpacing(5)
+                .padding()
+                .frame(width: 200, height: 300)
+            Spacer()
+                .frame(height: 40)
+            Button(action: {
+                debugPrint("save me")
+            }) {
+                Text("Save")
+                    .font(.custom("DIN Condensed Bold", size: 18))
+                    .foregroundColor(Color.gray)
+            }
+            
+            
+        }
+        .onAppear {
+            UITextView.appearance().backgroundColor = .clear
+        }
+    }
+}
+
 
 struct HallwayTrack: View {
     var body: some View {
@@ -1029,7 +1081,7 @@ struct LeftDisplayDoor: View, NormalizeSound {
     
     let doorIndex: Int
     @Binding var currentTime: String
-    @Binding var tracks: [Tracks]
+    var tracks: [Tracks]
     @Binding var soundSamples: [Float]
     
     var body: some View {
@@ -1051,7 +1103,7 @@ struct LeftDisplayDoor: View, NormalizeSound {
                     DoorIdPanel(doorIndex: doorIndex, currentTime: $currentTime, soundSamples: $soundSamples)
                         .frame(width: 110, height: 40, alignment: .bottomLeading)
                         //.offset(x: -50, y: -142)
-                    SongInfoPanel(doorIndex: doorIndex, tracks: $tracks)
+                    SongInfoPanel(doorIndex: doorIndex, tracks: tracks)
                         .frame(width: 140, height: 50, alignment: .bottomLeading)
                         .offset(x: 5, y: 35)
                 }
@@ -1430,7 +1482,7 @@ struct DoorIdPanel: View, NormalizeSound {
 
 struct SongInfoPanel: View {
     let doorIndex: Int
-    @Binding var tracks: [Tracks]
+    var tracks: [Tracks]
     
     var body: some View {
         ZStack {
