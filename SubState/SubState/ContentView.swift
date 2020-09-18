@@ -117,6 +117,9 @@ struct ContentView: View {
  
 
 
+                } else if navigationState == 2 {
+                    //log state
+                    LogList()
                 }
 
                 SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
@@ -163,6 +166,43 @@ struct ContentView: View {
         }
         .edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
 
+    }
+}
+
+struct LogList: View {
+    @ObservedObject var logEntries = LogEntries()
+    
+    init() {
+        UITableView.appearance().separatorStyle = .singleLine
+        UITableView.appearance().backgroundColor = UIColor(Color.offWhite)
+    }
+    
+    var body: some View {
+        VStack {
+            Spacer()
+                .frame(height: 100)
+            Text("Log Entries")
+                .font(.custom("DIN Condensed Bold", size: 24))
+                .foregroundColor(Color.gray)
+            List {
+                ForEach(logEntries.displayItems(), id: \.id) { log in
+                    
+                    HStack {
+                        Image(log.loggedTrack.vinylFile)
+                            .resizable()
+                            .frame(width: 50, height: 50)
+                            .offset(x: 0)
+                        Spacer()
+                            .frame(width: 20)
+                        Text("Log \(log.loggedUserText)")
+                            .font(.custom("DIN Condensed Bold", size: 16))
+                            .foregroundColor(Color.gray)
+                    }
+
+                }
+                .listRowBackground(Color.white)
+            }
+        }
     }
 }
 
@@ -969,7 +1009,7 @@ struct SlidingEntry: View {
             VStack {
                 ZStack {
                     if slideOpen {
-                        LogEntry(track: tracks[selectedKey])
+                        LogEntry(track: tracks[selectedKey], slideOpen: $slideOpen)
                     }
 
                     LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: tracks, soundSamples: $soundSamples)
@@ -1018,8 +1058,9 @@ struct SlidingEntry: View {
 
 struct LogEntry: View {
     var track: Tracks
+    @Binding var slideOpen: Bool
     @State private var entryText = "Enter Log"
-    
+    @EnvironmentObject var logEntries: LogEntries
     
     var body: some View {
         VStack {
@@ -1040,19 +1081,24 @@ struct LogEntry: View {
                 .lineLimit(nil)
             TextEditor(text: $entryText)
                 .font(.custom("DIN Condensed Bold", size: 12))
-                .foregroundColor(Color.black)
+                .foregroundColor(Color.gray)
                 .background(Color.clear)
-                .border(Color.black, width: 4)
+                .border(Color.gray, width: 1)
                 .lineSpacing(5)
                 .padding()
-                .frame(width: 200, height: 300)
+                .frame(width: 200, height: 150)
             Spacer()
                 .frame(height: 40)
             Button(action: {
-                debugPrint("save me")
+                let logEntry = LogEntries()
+                let logData = LogEntryData(loggedTrack: track, loggedUserText: entryText)
+                logEntry.add(item: logData)
+                self.hideKeyboard()
+                slideOpen = false
+                
             }) {
                 Text("Save")
-                    .font(.custom("DIN Condensed Bold", size: 18))
+                    .font(.custom("DIN Condensed Bold", size: 24))
                     .foregroundColor(Color.gray)
             }
             
@@ -1121,7 +1167,6 @@ struct KeyDragDropDelegate: DropDelegate {
     @Binding var selectedKey: Int
     
     func performDrop(info: DropInfo) -> Bool {
-        print("peform drop ", keyDragId)
         if selectedKey == keyDragId {
             slideOpen = true
         } else {
@@ -1661,6 +1706,14 @@ struct LogRaw: Shape {
         }
     }
 }
+
+#if canImport(UIKit)
+extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+#endif
 
 
 
