@@ -20,13 +20,17 @@ struct ContentView: View {
     @State var waveFrequency: Double = 10.0
     
     let keySize: CGFloat = 25
-    @State var selectedKey: Int = 0
+    @State var selectedKey: Int = UserDefaults.standard.integer(forKey: "savedkey")
     @State var slideOpen: Bool = false
     @State var allKeys: [Any] = [KeyOne.self, KeyTwo.self, KeyThree.self, KeyFour.self, KeyFive.self, KeySix.self, KeySeven.self, KeyEight.self, KeyNine.self, KeyTen.self, KeyEleven.self, KeyTwelve.self]
     
     @State var keyDragId: Int = 0
     
-    @State var navigationState: Int = 0
+    @State var navigationState: Int = UserDefaults.standard.integer(forKey: "navstate")
+    
+    @State var playPause: Bool = UserDefaults.standard.bool(forKey: "playpause")
+    
+    @State var playerTime: TimeInterval = UserDefaults.standard.double(forKey: "atsatime")
     
 
     var body: some View {
@@ -108,7 +112,7 @@ struct ContentView: View {
                     }
                     //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
                     //.transition(AnyTransition.identity)
-                    //.offset(y: -65)
+                    //.offset(y: -50)
 /*
                     keyGrid(navigationState: $navigationState, selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys, keyDragId: $keyDragId)
                         .offset(y: -40)
@@ -123,7 +127,7 @@ struct ContentView: View {
                 }
 
                 SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
-                StateNavigation(navigationState: $navigationState, slideOpen: $slideOpen, selectedKey: $selectedKey, allKeys: $allKeys)
+                StateNavigation(navigationState: $navigationState, slideOpen: $slideOpen, selectedKey: $selectedKey, allKeys: $allKeys, playPause: $playPause)
                 HStack {
                     Spacer()
                     Text("\(currentTime)")
@@ -137,6 +141,7 @@ struct ContentView: View {
             .offset(x: 0, y: -30)
             .animation(.default)
             .onChange(of: selectedKey) { newKey in
+                playPause = true
                 subStatePlayer.playTrack(track: tracks[newKey].fileName)
             }
             .onChange(of: subStatePlayer.trackTime) { newTime in
@@ -151,21 +156,59 @@ struct ContentView: View {
                 waveStrength = Double(pulse*4)
                 //waveFrequency = Double(pulse)
             }
+            .onChange(of: subStatePlayer.songComplete) { songComplete in
+                if songComplete {
+                    if selectedKey < 11 {
+                        selectedKey += 1
+                        subStatePlayer.playTrack(track: tracks[selectedKey].fileName)
+                    }
+                }
+            }
+            .onChange(of: playPause) { pp in
+                
+                if !pp {
+                    subStatePlayer.pausePlayer()
+                    playerTime = subStatePlayer.audioPlayer.currentTime
+                    UserDefaults.standard.set(playerTime, forKey: "atsatime")
+                    UserDefaults.standard.set(selectedKey, forKey: "savedkey")
+                    UserDefaults.standard.set(playPause, forKey: "playpause")
+                } else {
+                    //subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
+                    subStatePlayer.resumePlayer()
+                    UserDefaults.standard.set(playPause, forKey: "playpause")
+                }
+                
+            }
             .onAppear {
-                //set json
-                //tracks = tracksData
-                
-                //store state eventually instead of starting at 0
-                subStatePlayer.playTrack(track: tracks[0].fileName)
-                
-
+                debugPrint("first appear")
+                playPause = true
+                subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
                 
             }
             
             
         }
         .edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            print("Moving to the background!")
+            playerTime = subStatePlayer.audioPlayer.currentTime
+            UserDefaults.standard.set(playerTime, forKey: "atsatime")
+            UserDefaults.standard.set(selectedKey, forKey: "savedkey")
+            UserDefaults.standard.set(navigationState, forKey: "navstate")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            print("Moving back to the foreground!")
+            if playPause {
+                subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
+            print("App will quit")
+            playerTime = subStatePlayer.audioPlayer.currentTime
+            UserDefaults.standard.set(playerTime, forKey: "atsatime")
+            UserDefaults.standard.set(selectedKey, forKey: "savedkey")
+            UserDefaults.standard.set(navigationState, forKey: "navstate")
+        }
     }
 }
 
@@ -185,7 +228,7 @@ struct LogList: View {
                 .font(.custom("DIN Condensed Bold", size: 24))
                 .foregroundColor(Color.gray)
             List {
-                ForEach(logEntries.displayItems(), id: \.id) { log in
+                ForEach(logEntries.displayItems(), id: \.self) { log in
                     
                     HStack {
                         Image(log.loggedTrack.vinylFile)
@@ -200,11 +243,19 @@ struct LogList: View {
                     }
 
                 }
+                .onDelete(perform: delete)
                 .listRowBackground(Color.white)
+                
             }
         }
     }
+    
+    func delete(at offsets: IndexSet) {
+        logEntries.removeItem(at: offsets)
+    }
 }
+
+
 
 struct TrackScrollList: View, NormalizeSound {
     @Binding var currentTime: String
@@ -423,7 +474,8 @@ struct StateNavigation: View {
     @Binding var slideOpen: Bool
     @Binding var selectedKey: Int
     @Binding var allKeys: [Any]
-    let buttonSize: CGFloat = 35
+    @Binding var playPause: Bool
+    let buttonSize: CGFloat = 25
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -440,7 +492,7 @@ struct StateNavigation: View {
                 Button(action: {
                     navigationState = 1
                 }) {
-                    NavCorridor(parentSize: 12)
+                    NavCorridor(parentSize: 8)
                         .foregroundColor(.gray)
                         .frame(width: buttonSize, height: buttonSize)
                 }
@@ -472,9 +524,24 @@ struct StateNavigation: View {
                         }
                     }
                 }) {
-                    ArrowLeft(parentSize: 10)
+                    ArrowLeft(parentSize: 6)
                         .foregroundColor(.gray)
                         .frame(width: buttonSize, height: buttonSize)
+                }
+                .buttonStyle(SquareButtonStyle())
+                Button(action: {
+                    playPause.toggle()
+                }) {
+                    if playPause {
+                        ArrowPause(parentSize: 8)
+                            .foregroundColor(.gray)
+                            .frame(width: buttonSize, height: buttonSize)
+                    } else {
+                        ArrowPlay(parentSize: 8)
+                            .foregroundColor(.gray)
+                            .frame(width: buttonSize, height: buttonSize)
+                    }
+
                 }
                 .buttonStyle(SquareButtonStyle())
                 Button(action: {
@@ -495,7 +562,7 @@ struct StateNavigation: View {
                         }
                     }
                 }) {
-                    ArrowRight(parentSize: 12)
+                    ArrowRight(parentSize: 6)
                         .foregroundColor(.gray)
                         .frame(width: buttonSize, height: buttonSize)
                 }
@@ -943,7 +1010,7 @@ struct CircleButtonStyle: ButtonStyle {
 }
 
 struct SquareButtonStyle: ButtonStyle {
-    let cornerRadius: CGFloat = 9
+    let cornerRadius: CGFloat = 0
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .padding(10)
@@ -1006,7 +1073,7 @@ struct SlidingEntry: View {
     var body: some View {
         GeometryReader { geometry in
 
-            VStack {
+            VStack(alignment: .trailing) {
                 ZStack {
                     if slideOpen {
                         LogEntry(track: tracks[selectedKey], slideOpen: $slideOpen)
@@ -1014,7 +1081,6 @@ struct SlidingEntry: View {
 
                     LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: tracks, soundSamples: $soundSamples)
                         .offset(x: (slideOpen && selectedKey == doorIndex) ? -(geometry.size.width*0.60) : 0)
-                        //.animation(Animation.easeInOut(duration: 0.4).delay(0.2))
                         .animation(Animation.easeInOut(duration: 0.4))
                     RightKeyDoor(slideOpen: $slideOpen, keyDragId: $keyDragId, selectedKey: $selectedKey, soundSamples: $soundSamples)
                         .offset(x: (slideOpen && selectedKey == doorIndex) ? geometry.size.width*0.35 : 0)
@@ -1040,14 +1106,18 @@ struct SlidingEntry: View {
                     Button(action: {
                         slideOpen = true
                     }) {
-//                        Text("Enter Log Entry")
-//                            .font(.custom("DIN Condensed Bold", size: 21))
-//                            .foregroundColor(Color.gray)
-                        ArrowRight(parentSize: 12)
-                            .foregroundColor(.gray)
-                            .frame(width: 25, height: 25)
+                        HStack {
+                            ArrowUp(parentSize: 6)
+                                .foregroundColor(.gray)
+                                .frame(width: 25, height: 20)
+                            Text("Log Track")
+                                .font(.custom("DIN Condensed Bold", size: 12))
+                                .foregroundColor(Color.gray)
+                        }
+
                     }
                     .buttonStyle(SquareButtonStyle())
+                    .offset(y: 65)
                     Spacer()
                         .frame(height: 50)
                 }
@@ -1133,22 +1203,22 @@ struct LeftDisplayDoor: View, NormalizeSound {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .bottom) {
-                LeftDisplayBackPlateRaw()
-                    .foregroundColor(.white)
-                    .frame(width: geometry.size.width*0.70, height: 400)
-/*
-                HStack(alignment: .bottom, spacing: 0) {
-                    ForEach(soundSamples, id: \.self) { level in
-                        SoundBarView(soundValue: self.normalizeSoundLevel(level: level, height: 100), barColor: .gray, barOpacity: 1.0, barWidth: 1.0)
-                    }
-                }
-                .offset(x: -70, y: -180)
- */
+                Image("metalA")
+                    .resizable()
+                    .frame(width: geometry.size.width*0.70, height: 500)
+                    //animate 8 to 20?
+                    .blur(radius: 8)
+                    .mask(LeftDisplayBackPlateRaw())
                 
+                LeftPlateStripe()
+                    .foregroundColor(.white)
+                    .frame(width: geometry.size.width*0.70, height: 30)
+                    .offset(x: 5, y: -10)
+                    .blendMode(.softLight)
+
                 VStack(alignment: .leading) {
                     DoorIdPanel(doorIndex: doorIndex, currentTime: $currentTime, soundSamples: $soundSamples)
                         .frame(width: 110, height: 40, alignment: .bottomLeading)
-                        //.offset(x: -50, y: -142)
                     SongInfoPanel(doorIndex: doorIndex, tracks: tracks)
                         .frame(width: 140, height: 50, alignment: .bottomLeading)
                         .offset(x: 5, y: 35)
@@ -1187,21 +1257,30 @@ struct RightKeyDoor: View {
     
     var body: some View {
         GeometryReader { geometry in
-            ZStack {
+            ZStack(alignment: .bottom) {
+                
                 RightBackPlateRaw()
                     .foregroundColor(.white)
-                    .frame(width: geometry.size.width*0.30, height: 400)
+                    .frame(width: geometry.size.width*0.30, height: 500)
                     .offset(x: geometry.size.width*0.70)
+                    .shadow(radius: 1)
+                
+                RightPlateStripe()
+                    .foregroundColor(.gray)
+                    .frame(width: geometry.size.width*0.30, height: 22)
+                    .opacity(0.7)
+                    .offset(x: geometry.size.width*0.70, y: 0)
+                
 
                 UnlockCirclePanel(slideOpen: $slideOpen)
                     .rotationEffect(.degrees(slideOpen ? 90 : 0))
                     .frame(width: 40, height: 40)
-                    .offset(x: (geometry.size.width/2)-20, y: 50)
+                    .offset(x: (geometry.size.width/2)-20, y: -175)
 
 
                 KeyDropPanel(selectedKey: $selectedKey, slideOpen: $slideOpen, soundSamples: $soundSamples)
                     .frame(width: 80, height: 80)
-                    .offset(x: (geometry.size.width*0.70)-14, y: 130)
+                    .offset(x: (geometry.size.width*0.70)-14, y: -50)
                     /*
                     .onDrop(
                         of: [KeyDrag.keyDragIdentifier],
@@ -1258,25 +1337,25 @@ struct RaisedShape: ViewModifier {
 
 struct LoweredShape: ViewModifier {
     func body(content: Content) -> some View {
-            return RoundedRectangle(cornerRadius: 7)
+            return RoundedRectangle(cornerRadius: 0)
                 //.fill(Color.offWhite)
                 .fill(Color.gray)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 7)
+                    RoundedRectangle(cornerRadius: 0)
                         //.stroke(Color.gray, lineWidth: 4)
                         .stroke(Color.black, lineWidth: 4)
                         .blur(radius: 4)
                         .offset(x: 2, y: 2)
-                        .mask(RoundedRectangle(cornerRadius: 7).fill(LinearGradient(Color.black, Color.clear)))
+                        .mask(RoundedRectangle(cornerRadius: 0).fill(LinearGradient(Color.black, Color.clear)))
                               
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 7)
+                    RoundedRectangle(cornerRadius: 0)
                         //.stroke(Color.white, lineWidth: 8)
                         .stroke(Color.offWhite, lineWidth: 8)
                         .blur(radius: 4)
                         .offset(x: -2, y: -2)
-                        .mask(RoundedRectangle(cornerRadius: 7).fill(LinearGradient(Color.clear, Color.black)))
+                        .mask(RoundedRectangle(cornerRadius: 0).fill(LinearGradient(Color.clear, Color.black)))
                               
                 )
     }
@@ -1288,23 +1367,23 @@ struct KeyBGShape: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background(
-                RoundedRectangle(cornerRadius: 7)
+                RoundedRectangle(cornerRadius: 0)
                     .fill(Color.offWhite)
                     .frame(width: parentSize, height: parentSize)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 7)
+                        RoundedRectangle(cornerRadius: 0)
                             .stroke(Color.gray, lineWidth: 4)
                             .blur(radius: 4)
                             .offset(x: 2, y: 2)
-                            .mask(RoundedRectangle(cornerRadius: 7).fill(LinearGradient(Color.black, Color.clear)))
+                            .mask(RoundedRectangle(cornerRadius: 0).fill(LinearGradient(Color.black, Color.clear)))
                                   
                     )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 7)
+                        RoundedRectangle(cornerRadius: 0)
                             .stroke(Color.white, lineWidth: 8)
                             .blur(radius: 4)
                             .offset(x: -2, y: -2)
-                            .mask(RoundedRectangle(cornerRadius: 7).fill(LinearGradient(Color.clear, Color.black)))
+                            .mask(RoundedRectangle(cornerRadius: 0).fill(LinearGradient(Color.clear, Color.black)))
                                   
                     )
             )
@@ -1446,6 +1525,7 @@ struct KeyDropPanel: View, NormalizeSound {
     @Binding var selectedKey: Int
     @Binding var slideOpen: Bool
     @Binding var soundSamples: [Float]
+    @State private var endShapeAmount: CGFloat = 0
     
     var body: some View {
         
@@ -1457,6 +1537,23 @@ struct KeyDropPanel: View, NormalizeSound {
                     .loweredShapeStyle()
 
                 if selectedKey == 0 && !slideOpen {
+                    /*
+                    ShapeView(bezier: UIBezierPath.keyOneBezier)
+                        .trim(from: 0, to: endShapeAmount)
+                        .stroke(Color.red, lineWidth: 4)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .onAppear {
+                            withAnimation(Animation.easeInOut(duration: 1)) {
+                                self.endShapeAmount = 1
+                            }
+                        }
+                        .onDisappear {
+                            debugPrint("bye shape 0")
+                            self.endShapeAmount = 0
+                        }
+ */
+                        
+
                     Image("metalA")
                         .frame(width: geometry.size.width/3, height: geometry.size.height/3)
                         .mask(KeyOneRaw())
@@ -1465,6 +1562,8 @@ struct KeyDropPanel: View, NormalizeSound {
                         .shadow(radius: 5)
                         .transition(.asymmetric(insertion: .softTransition, removal: .hardTransition))
                         //.transition(AnyTransition.identity)
+
+
 
                 } else if selectedKey == 1 && !slideOpen {
                     Image("metalA")
@@ -1507,20 +1606,13 @@ struct DoorIdPanel: View, NormalizeSound {
             DoorIdPlateRaw()
                 .foregroundColor(.gray)
                 .loweredShapeStyle()
-            /*
-            HStack(alignment: .bottom, spacing: 0) {
-                ForEach(soundSamples, id: \.self) { level in
-                    SoundBarView(soundValue: self.normalizeSoundLevel(level: level, height: 25), barColor: .white, barOpacity: 0.8, barWidth: 1.0)
-                }
-            }
-            .offset(x: 0, y: 14)
-            .scaleEffect(x: 4, anchor: .center)
- */
+
             Text("\(currentTime)")
                 //.font(.system(size: 50))
                 .font(.custom("DIN Condensed Bold", size: 20))
                 .foregroundColor(.offWhite)
                 .offset(y: 8)
+                .blendMode(.softLight)
         }
     }
 }
@@ -1534,11 +1626,12 @@ struct SongInfoPanel: View {
             VStack(alignment: .leading) {
                 Text("\(tracks[doorIndex].song)")
                     .font(.custom("DIN Condensed Bold", size: 16))
-                    .foregroundColor(.gray)
+                    .foregroundColor(.white)
                 Text("\(tracks[doorIndex].artist)")
                     .font(.custom("DIN Condensed Bold", size: 12))
-                    .foregroundColor(.gray)
+                    .foregroundColor(.white)
             }
+            .blendMode(.softLight)
         }
     }
 }
@@ -1583,13 +1676,42 @@ struct RightBackPlateRaw: Shape {
     }
 }
 
+struct LeftPlateStripe: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: 0, y: 0))
+            path.addLine(to: CGPoint(x: rect.width*0.70, y: 0))
+            path.addLine(to: CGPoint(x: rect.width*0.94, y: 17))
+            path.addLine(to: CGPoint(x: rect.width*0.98, y: 40))
+            path.addLine(to: CGPoint(x: rect.width*0.70, y: 4))
+            path.addLine(to: CGPoint(x: 12, y: 10))
+            path.closeSubpath()
+        }
+    }
+}
+
+struct RightPlateStripe: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: -9, y: 0))
+            path.addLine(to: CGPoint(x: rect.width/2, y: 22))
+            path.addLine(to: CGPoint(x: 0, y: 22))
+            path.closeSubpath()
+        }
+    }
+}
+
 struct ArrowLeft: View {
     var parentSize: CGFloat
     
     var body: some View {
         ZStack {
-            ArrowRaw()
-                .frame(width: parentSize, height: parentSize)
+            HStack(spacing: 0) {
+                ArrowRaw()
+                    .frame(width: parentSize, height: parentSize)
+                ArrowRaw()
+                    .frame(width: parentSize, height: parentSize)
+            }
         }
     }
 }
@@ -1599,8 +1721,49 @@ struct ArrowRight: View {
     
     var body: some View {
         ZStack {
+            HStack(spacing: 0) {
+                ArrowRaw()
+                    .scale(x: -1)
+                    .frame(width: parentSize, height: parentSize)
+                ArrowRaw()
+                    .scale(x: -1)
+                    .frame(width: parentSize, height: parentSize)
+            }
+
+        }
+    }
+}
+
+struct ArrowPlay: View {
+    var parentSize: CGFloat
+    
+    var body: some View {
+        ZStack {
             ArrowRaw()
                 .scale(x: -1)
+                .frame(width: parentSize, height: parentSize)
+        }
+    }
+}
+
+struct ArrowPause: View {
+    var parentSize: CGFloat
+    
+    var body: some View {
+        ZStack {
+            PauseRaw()
+                .frame(width: parentSize, height: parentSize)
+                .offset(y: 3)
+        }
+    }
+}
+struct ArrowUp: View {
+    var parentSize: CGFloat
+    
+    var body: some View {
+        ZStack {
+            ArrowRaw()
+                .rotation(.degrees(90))
                 .frame(width: parentSize, height: parentSize)
         }
     }
@@ -1617,6 +1780,8 @@ struct ArrowRaw: Shape {
     }
 }
 
+
+
 // bridge corriodr log
 
 struct NavBridge: View {
@@ -1624,9 +1789,8 @@ struct NavBridge: View {
     
     var body: some View {
         VStack {
-            BridgeRaw()
+            Circle()
                 .frame(width: parentSize, height: parentSize)
-                .offset(y: 5)
         }
     }
 }
@@ -1651,13 +1815,37 @@ struct NavLog: View {
     
     var body: some View {
         ZStack {
-            Circle()
+            LogRaw()
                 .frame(width: parentSize, height: parentSize)
+                .offset(y: 8)
         }
     }
 }
 
 struct BridgeRaw: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height-18)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-18)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-21)))
+            path.addLine(to: CGPoint(x: rect.size.width, y: -(rect.height-21)))
+            path.closeSubpath()
+        }
+    }
+}
+
+struct CorridorRaw: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height/2)))
+            path.addLine(to: CGPoint(x: -(rect.width/2), y: rect.height/2))
+            path.addLine(to: CGPoint(x: rect.size.width, y: rect.height + (rect.height/2)))
+            path.closeSubpath()
+        }
+    }
+}
+
+struct LogRaw: Shape {
     func path(in rect: CGRect) -> Path {
         Path { path in
             path.move(to: CGPoint(x: rect.size.width, y: -(rect.height)))
@@ -1684,28 +1872,23 @@ struct BridgeRaw: Shape {
     }
 }
 
-struct CorridorRaw: Shape {
+struct PauseRaw: Shape {
     func path(in rect: CGRect) -> Path {
         Path { path in
-            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height/2)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: rect.height/2))
-            path.addLine(to: CGPoint(x: rect.size.width, y: rect.height + (rect.height/2)))
+            path.move(to: CGPoint(x: (rect.size.width/2)-4, y: -(rect.height)))
+            path.addLine(to: CGPoint(x: (rect.size.width/2)-1, y: -(rect.height)))
+            path.addLine(to: CGPoint(x: (rect.size.width/2)-1, y: rect.height))
+            path.addLine(to: CGPoint(x: (rect.size.width/2)-4, y: rect.height))
+            path.closeSubpath()
+            path.move(to: CGPoint(x: (rect.size.width/2)+1, y: -(rect.height)))
+            path.addLine(to: CGPoint(x: (rect.size.width/2)+4, y: -(rect.height)))
+            path.addLine(to: CGPoint(x: (rect.size.width/2)+4, y: rect.height))
+            path.addLine(to: CGPoint(x: (rect.size.width/2)+1, y: rect.height))
             path.closeSubpath()
         }
     }
 }
 
-struct LogRaw: Shape {
-    func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height-18)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-18)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-21)))
-            path.addLine(to: CGPoint(x: rect.size.width, y: -(rect.height-21)))
-            path.closeSubpath()
-        }
-    }
-}
 
 #if canImport(UIKit)
 extension View {

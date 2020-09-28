@@ -298,6 +298,18 @@ struct KeyOneRaw: Shape {
     }
 }
 
+extension UIBezierPath {
+    static var keyOneBezier: UIBezierPath {
+        let path = UIBezierPath()
+        
+        path.move(to: CGPoint(x: 0.2, y: 0.2))
+        path.addCurve(to: CGPoint(x: 0.8, y: 0.4), controlPoint1: CGPoint(x: 0.534, y: 0.5816), controlPoint2: CGPoint(x: 0.2529, y: 0.4205))
+
+        
+        return path
+    }
+}
+
 struct KeyTwoRaw: Shape {
     
     var controlAX: CGFloat = 0

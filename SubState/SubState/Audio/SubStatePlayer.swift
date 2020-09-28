@@ -25,6 +25,9 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
     //audio pulse
     @Published var audioPulse: Int = 0
     
+    //finished playing
+    @Published var songComplete: Bool = false
+    
     override init() {
         super.init()
         //self.playTrack(track: tracks[0].fileName)
@@ -47,8 +50,14 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
         }
     }
     
-    func playTrack(track: String) {
-        
+    func resumePlayer() {
+        DispatchQueue.global(qos: .background).async {
+            self.audioPlayer.play()
+        }
+    }
+    
+    func playTrack(track: String, playHead: TimeInterval? = nil) {
+
         let musicUrl = Bundle.main.url(forResource: track, withExtension: nil)
         
         if let musicUrl = musicUrl {
@@ -59,9 +68,13 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
                     self.audioPlayer.delegate = self
                     self.audioPlayer.isMeteringEnabled = true
                     self.audioPlayer.prepareToPlay()
-                    //you were so bad
-                    //self.audioPlayer.currentTime = Double((self.trackPlayer?.trackTime)!)!
+                    if let playHead = playHead {
+                        self.audioPlayer.currentTime = playHead
+                    }
                     self.audioPlayer.play()
+                    DispatchQueue.main.async {
+                        self.songComplete = false
+                    }
                     
                 } catch {
                     debugPrint("error ", error)
@@ -83,10 +96,14 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
         
         let sumSamples = soundSamples.reduce(0, +)
         audioPulse = abs(Int(sumSamples) / soundSamples.count)
+        
+        //debugPrint("audio current time ", self.audioPlayer.currentTime)
+        //6.964988662131519
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         debugPrint("audio complete")
+        self.songComplete = true
     }
     
     func secondsToMinutesSeconds (seconds : Int) -> (Int, Int) {

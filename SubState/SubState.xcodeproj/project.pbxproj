@@ -40,6 +40,7 @@
 		D2E9EBF3250A9A9500AEBF89 /* NormalizeSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E9EBF2250A9A9500AEBF89 /* NormalizeSound.swift */; };
 		D2E9EC13250C248E00AEBF89 /* EmitterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E9EC12250C248E00AEBF89 /* EmitterView.swift */; };
 		D2E9EC16250D570100AEBF89 /* ViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E9EC15250D570100AEBF89 /* ViewExtension.swift */; };
+		D2F63886251D33D4000A2828 /* ShapeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F63885251D33D4000A2828 /* ShapeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +100,7 @@
 		D2E9EBF2250A9A9500AEBF89 /* NormalizeSound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NormalizeSound.swift; sourceTree = "<group>"; };
 		D2E9EC12250C248E00AEBF89 /* EmitterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmitterView.swift; sourceTree = "<group>"; };
 		D2E9EC15250D570100AEBF89 /* ViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtension.swift; sourceTree = "<group>"; };
+		D2F63885251D33D4000A2828 /* ShapeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,6 +170,7 @@
 		D280FBC924FF0689002E3EEB /* SubState */ = {
 			isa = PBXGroup;
 			children = (
+				D2F63884251D33C7000A2828 /* Shapes */,
 				D2E9EC14250D56F000AEBF89 /* Extensions */,
 				D2E9EC0F250C0D4200AEBF89 /* Emitter */,
 				D280FC912508374F002E3EEB /* Audio */,
@@ -273,6 +276,14 @@
 				D2E9EC15250D570100AEBF89 /* ViewExtension.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		D2F63884251D33C7000A2828 /* Shapes */ = {
+			isa = PBXGroup;
+			children = (
+				D2F63885251D33D4000A2828 /* ShapeView.swift */,
+			);
+			path = Shapes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -424,6 +435,7 @@
 				D280FBFC24FF08C2002E3EEB /* MiscShapes.swift in Sources */,
 				D208CFE825152069000A0C28 /* UserCache.swift in Sources */,
 				D280FBF624FF0723002E3EEB /* KeyShapes.swift in Sources */,
+				D2F63886251D33D4000A2828 /* ShapeView.swift in Sources */,
 				D280FC932508376A002E3EEB /* SubStatePlayer.swift in Sources */,
 				D280FC752507EC65002E3EEB /* TracksContainer.swift in Sources */,
 				D280FBCD24FF0689002E3EEB /* ContentView.swift in Sources */,
@@ -589,6 +601,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"SubState/Preview Content\"";
 				DEVELOPMENT_TEAM = QN558ZNJ2W;
@@ -599,8 +612,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "net.jetstream-mode.SubState";
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "net.jetstream-mode.substate";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -611,6 +626,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"SubState/Preview Content\"";
 				DEVELOPMENT_TEAM = QN558ZNJ2W;
@@ -621,8 +637,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "net.jetstream-mode.SubState";
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "net.jetstream-mode.substate";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
