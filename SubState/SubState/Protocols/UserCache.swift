@@ -29,6 +29,7 @@ struct LogEntryData: Equatable, Hashable, Identifiable, Codable {
     var id = UUID()
     let loggedTrack: Tracks
     let loggedUserText: String
+    let loggedDate: String
     var hasTwitterPosted: Bool = false
     var hasVisitedBandSite: Bool = false
     

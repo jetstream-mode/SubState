@@ -214,6 +214,7 @@ struct ContentView: View {
 
 struct LogList: View {
     @ObservedObject var logEntries = LogEntries()
+
     
     init() {
         UITableView.appearance().separatorStyle = .singleLine
@@ -228,23 +229,12 @@ struct LogList: View {
                 .font(.custom("DIN Condensed Bold", size: 24))
                 .foregroundColor(Color.gray)
             List {
-                ForEach(logEntries.displayItems(), id: \.self) { log in
-                    
-                    HStack {
-                        Image(log.loggedTrack.vinylFile)
-                            .resizable()
-                            .frame(width: 50, height: 50)
-                            .offset(x: 0)
-                        Spacer()
-                            .frame(width: 20)
-                        Text("Log \(log.loggedUserText)")
-                            .font(.custom("DIN Condensed Bold", size: 16))
-                            .foregroundColor(Color.gray)
-                    }
-
+                ForEach(logEntries.displayItems(), id: \.id) { log in
+                    LogCellView(logEntry: log)
                 }
                 .onDelete(perform: delete)
                 .listRowBackground(Color.white)
+                .animation(.default)
                 
             }
         }
@@ -252,6 +242,49 @@ struct LogList: View {
     
     func delete(at offsets: IndexSet) {
         logEntries.removeItem(at: offsets)
+    }
+}
+struct LogCellButtonStyle: ButtonStyle {
+    let height: CGFloat = 60
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            //.frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
+            //.foregroundColor(Color.white)
+            .background(configuration.isPressed ? Color.white : Color.white)
+    }
+}
+
+struct LogCellView: View {
+    
+    var logEntry: LogEntryData
+    @State var cellHeight: CGFloat = 50
+    @State private var showEntry = false
+    
+    var body: some View {
+        HStack(alignment: .top) {
+            Image(logEntry.loggedTrack.vinylFile)
+                .resizable()
+                .frame(width: 50, height: 50)
+                .offset(x: 0)
+            Spacer()
+                .frame(width: 20)
+            VStack(alignment: .leading) {
+                Text("\(logEntry.loggedDate)")
+                    .font(.custom("DIN Condensed Bold", size: 20))
+                    .foregroundColor(Color.gray)
+                if showEntry {
+                    Text("\(logEntry.loggedUserText)")
+                        .font(.custom("DIN Condensed Bold", size: 16))
+                        .foregroundColor(Color.gray)
+                }
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            withAnimation {
+                self.showEntry.toggle()
+            }
+        }
     }
 }
 
@@ -1077,13 +1110,16 @@ struct SlidingEntry: View {
                 ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
                     if slideOpen {
                         BehindClosedDoor(track: tracks[selectedKey], slideOpen: $slideOpen)
+                            .zIndex(1)
                     }
                     LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: tracks, soundSamples: $soundSamples)
                         .offset(x: (slideOpen && selectedKey == doorIndex) ? -(geometry.size.width*0.60) : 0)
-                        .animation(Animation.easeInOut(duration: 0.4))
+                        .animation((slideOpen && selectedKey == doorIndex) ? Animation.easeIn(duration: 0.4) : Animation.easeOut(duration: 0.4))
+                        .zIndex(2)
                     RightKeyDoor(slideOpen: $slideOpen, keyDragId: $keyDragId, selectedKey: $selectedKey, soundSamples: $soundSamples)
                         .offset(x: (slideOpen && selectedKey == doorIndex) ? geometry.size.width*0.35 : 0)
-                        .animation(Animation.easeInOut(duration: 0.4))
+                        .animation((slideOpen && selectedKey == doorIndex) ? Animation.easeIn(duration: 0.4) : Animation.easeOut(duration: 0.4))
+                        .zIndex(3)
                 }
                 .gesture(
                     DragGesture()
@@ -1132,8 +1168,10 @@ struct BehindClosedDoor: View {
     @State private var saveButtonHeight = CGFloat(20)
     @EnvironmentObject var logEntries: LogEntries
     var leftMargin = CGFloat(40)
-    @State var leftSlideMargin = CGFloat(-500)
-    @State var rightSlideMargin = CGFloat(500)
+    //@State var leftSlideMargin = CGFloat(-500)
+    //@State var rightSlideMargin = CGFloat(500)
+    @State var leftSlideMargin = CGFloat(40)
+    @State var rightSlideMargin = CGFloat(40)
     @State var scaleY: CGFloat = 0
     @State var alphaRow: Double = 0
     
@@ -1141,45 +1179,36 @@ struct BehindClosedDoor: View {
     var body: some View {
         GeometryReader { geometry in
 
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 5) {
                 Spacer()
-                    .frame(height: 141)
+                    .frame(height: 137)
                 BehindDoorSave(track: track, slideOpen: $slideOpen, entryText: $entryText, saveButtonHeight: $saveButtonHeight)
                     .offset(x: leftSlideMargin)
                     .frame(width: (geometry.size.width - leftMargin*2)-0, height: saveButtonHeight)
                     .opacity(alphaRow)
                 BehindDoorLogEntry(entryText: $entryText)
-                    .offset(x: rightSlideMargin, y: 3)
+                    .offset(x: rightSlideMargin, y: 14)
                     .frame(width: (geometry.size.width - leftMargin*2)-0, height: 100)
                     .opacity(alphaRow)
+                    .scaleEffect(scaleY, anchor: .bottom)
                 BehindDoorVinylAndAction(track: track)
-                    .offset(x: leftSlideMargin, y: -4)
+                    .offset(x: leftSlideMargin, y: 14)
                     .frame(width: (geometry.size.width - leftMargin*2)-20, height: 50)
                     .opacity(alphaRow)
                 BehindDoorArtistSong(track: track)
-                    .offset(x: rightSlideMargin, y: -11)
+                    .offset(x: rightSlideMargin, y: 14)
                     .frame(width: (geometry.size.width - leftMargin*2)-5, height: 50)
                     .opacity(alphaRow)
                 BehindDoorSongHistory(track: track)
-                    .offset(x: leftSlideMargin, y: -26)
+                    .offset(x: leftSlideMargin, y: 5)
                     .frame(width: (geometry.size.width - leftMargin*2)-45, height: 140)
                     .opacity(alphaRow)
 
             }
-            .frame(width: geometry.size.width * 2, alignment: .leading)
-            .animation(.easeOut(duration: 0.7))
+            .animation(Animation.easeOut(duration: 0.7).delay(0))
             .onAppear {
-                leftSlideMargin = leftMargin
-                rightSlideMargin = leftMargin
-                //scaleY = 1
+                scaleY = 1
                 alphaRow = 1
-
-            }
-            .onDisappear {
-                leftSlideMargin = -500
-                rightSlideMargin = 500
-                //scaleY = 1
-                alphaRow = 0
             }
         }
 
@@ -1197,7 +1226,8 @@ struct BehindDoorSave: View {
         GeometryReader { geometry in
             Button(action: {
                 let logEntry = LogEntries()
-                let logData = LogEntryData(loggedTrack: track, loggedUserText: entryText)
+                let loggedDataStamp = "Log Entry: \(Date().description)"
+                let logData = LogEntryData(loggedTrack: track, loggedUserText: entryText, loggedDate: loggedDataStamp)
                 logEntry.add(item: logData)
                 self.hideKeyboard()
                 slideOpen = false
@@ -1252,10 +1282,16 @@ struct BehindDoorVinylAndAction: View {
                     .offset(x: 0)
                 Spacer()
                     .frame(width: 20)
-                Text("Log Entry")
-                    .font(.custom("DIN Condensed Bold", size: 32))
-                    .foregroundColor(Color.gray)
-                    .frame(width: geometry.size.width - 50)
+                HStack {
+                    Text("Log Entry")
+                        .font(.custom("DIN Condensed Bold", size: 32))
+                        .foregroundColor(Color.gray)
+                    ArrowUp(parentSize: 6)
+                        .foregroundColor(.gray)
+                        .frame(width: 25, height: 20)
+                }
+                .frame(width: geometry.size.width - 50)
+
             }
             .border(Color.gray, width: 1)
             
@@ -1344,7 +1380,7 @@ struct LeftDisplayDoor: View, NormalizeSound {
             ZStack(alignment: .bottom) {
                 Image("metalA")
                     .resizable()
-                    .frame(width: geometry.size.width*0.70, height: 500)
+                    .frame(width: geometry.size.width*0.70, height: 504)
                     .blur(radius: 8)
                     .mask(LeftDisplayBackPlateRaw())
                 
@@ -1399,7 +1435,7 @@ struct RightKeyDoor: View {
                 
                 RightBackPlateRaw()
                     .foregroundColor(.white)
-                    .frame(width: geometry.size.width*0.30, height: 500)
+                    .frame(width: geometry.size.width*0.30, height: 504)
                     .offset(x: geometry.size.width*0.70)
                     .shadow(radius: 1)
                 
