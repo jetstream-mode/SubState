@@ -1074,11 +1074,10 @@ struct SlidingEntry: View {
         GeometryReader { geometry in
 
             VStack(alignment: .trailing) {
-                ZStack {
+                ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
                     if slideOpen {
-                        LogEntry(track: tracks[selectedKey], slideOpen: $slideOpen)
+                        BehindClosedDoor(track: tracks[selectedKey], slideOpen: $slideOpen)
                     }
-
                     LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: tracks, soundSamples: $soundSamples)
                         .offset(x: (slideOpen && selectedKey == doorIndex) ? -(geometry.size.width*0.60) : 0)
                         .animation(Animation.easeInOut(duration: 0.4))
@@ -1126,14 +1125,126 @@ struct SlidingEntry: View {
     }
 }
 
-struct LogEntry: View {
+struct BehindClosedDoor: View {
     var track: Tracks
     @Binding var slideOpen: Bool
-    @State private var entryText = "Enter Log"
+    @State private var entryText = "_"
+    @State private var saveButtonHeight = CGFloat(20)
+    @EnvironmentObject var logEntries: LogEntries
+    var leftMargin = CGFloat(40)
+    @State var leftSlideMargin = CGFloat(-500)
+    @State var rightSlideMargin = CGFloat(500)
+    @State var scaleY: CGFloat = 0
+    @State var alphaRow: Double = 0
+    
+    
+    var body: some View {
+        GeometryReader { geometry in
+
+            VStack(alignment: .leading) {
+                Spacer()
+                    .frame(height: 141)
+                BehindDoorSave(track: track, slideOpen: $slideOpen, entryText: $entryText, saveButtonHeight: $saveButtonHeight)
+                    .offset(x: leftSlideMargin)
+                    .frame(width: (geometry.size.width - leftMargin*2)-0, height: saveButtonHeight)
+                    .opacity(alphaRow)
+                BehindDoorLogEntry(entryText: $entryText)
+                    .offset(x: rightSlideMargin, y: 3)
+                    .frame(width: (geometry.size.width - leftMargin*2)-0, height: 100)
+                    .opacity(alphaRow)
+                BehindDoorVinylAndAction(track: track)
+                    .offset(x: leftSlideMargin, y: -4)
+                    .frame(width: (geometry.size.width - leftMargin*2)-20, height: 50)
+                    .opacity(alphaRow)
+                BehindDoorArtistSong(track: track)
+                    .offset(x: rightSlideMargin, y: -11)
+                    .frame(width: (geometry.size.width - leftMargin*2)-5, height: 50)
+                    .opacity(alphaRow)
+                BehindDoorSongHistory(track: track)
+                    .offset(x: leftSlideMargin, y: -26)
+                    .frame(width: (geometry.size.width - leftMargin*2)-45, height: 140)
+                    .opacity(alphaRow)
+
+            }
+            .frame(width: geometry.size.width * 2, alignment: .leading)
+            .animation(.easeOut(duration: 0.7))
+            .onAppear {
+                leftSlideMargin = leftMargin
+                rightSlideMargin = leftMargin
+                //scaleY = 1
+                alphaRow = 1
+
+            }
+            .onDisappear {
+                leftSlideMargin = -500
+                rightSlideMargin = 500
+                //scaleY = 1
+                alphaRow = 0
+            }
+        }
+
+    }
+}
+
+struct BehindDoorSave: View {
+    var track: Tracks
+    @Binding var slideOpen: Bool
+    @Binding var entryText: String
+    @Binding var saveButtonHeight: CGFloat
     @EnvironmentObject var logEntries: LogEntries
     
     var body: some View {
-        VStack {
+        GeometryReader { geometry in
+            Button(action: {
+                let logEntry = LogEntries()
+                let logData = LogEntryData(loggedTrack: track, loggedUserText: entryText)
+                logEntry.add(item: logData)
+                self.hideKeyboard()
+                slideOpen = false
+            }) {
+                Text("Save")
+                    .font(.custom("DIN Condensed Bold", size: 21))
+                    .foregroundColor(Color.gray)
+                    .frame(width: geometry.size.width, height: saveButtonHeight)
+                    .padding(.top, 8)
+                    .padding(.bottom, 5)
+                
+            }
+            .border(Color.gray, width: 1)
+            .onAppear {
+                debugPrint("behind door width b ", geometry.size.width)
+            }
+
+        }
+    }
+}
+
+struct BehindDoorLogEntry: View {
+    
+    @Binding var entryText: String
+    
+    var body: some View {
+        GeometryReader { geometry in
+            TextEditor(text: $entryText)
+                .font(.custom("DIN Condensed Bold", size: 24))
+                .foregroundColor(Color.gray)
+                .background(Color.clear)
+                .border(Color.gray, width: 1)
+                .lineSpacing(5)
+                .frame(width: geometry.size.width, height: 100)
+                .onAppear {
+                    UITextView.appearance().backgroundColor = .clear
+                }
+        }
+    }
+}
+
+struct BehindDoorVinylAndAction: View {
+    var track: Tracks
+    
+    var body: some View {
+        GeometryReader { geometry in
+            
             HStack {
                 Image(track.vinylFile)
                     .resizable()
@@ -1141,44 +1252,72 @@ struct LogEntry: View {
                     .offset(x: 0)
                 Spacer()
                     .frame(width: 20)
-                Text("Log Entry For \(track.song)")
-                    .font(.custom("DIN Condensed Bold", size: 18))
+                Text("Log Entry")
+                    .font(.custom("DIN Condensed Bold", size: 32))
                     .foregroundColor(Color.gray)
+                    .frame(width: geometry.size.width - 50)
             }
-            Text("Song background info, \nstreaming options, \nbandcamp, etc")
-                .font(.custom("DIN Condensed Bold", size: 14))
-                .foregroundColor(Color.gray)
-                .lineLimit(nil)
-            TextEditor(text: $entryText)
-                .font(.custom("DIN Condensed Bold", size: 12))
-                .foregroundColor(Color.gray)
-                .background(Color.clear)
-                .border(Color.gray, width: 1)
-                .lineSpacing(5)
-                .padding()
-                .frame(width: 200, height: 150)
-            Spacer()
-                .frame(height: 40)
-            Button(action: {
-                let logEntry = LogEntries()
-                let logData = LogEntryData(loggedTrack: track, loggedUserText: entryText)
-                logEntry.add(item: logData)
-                self.hideKeyboard()
-                slideOpen = false
-                
-            }) {
-                Text("Save")
-                    .font(.custom("DIN Condensed Bold", size: 24))
-                    .foregroundColor(Color.gray)
-            }
+            .border(Color.gray, width: 1)
             
-            
-        }
-        .onAppear {
-            UITextView.appearance().backgroundColor = .clear
         }
     }
 }
+struct BehindDoorArtistSong: View {
+    var track: Tracks
+    
+    var body: some View {
+        GeometryReader { geometry in
+            
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("\(track.artist)")
+                        .font(.custom("DIN Condensed Bold", size: 18))
+                        .foregroundColor(Color.gray)
+                        .frame(width: geometry.size.width, alignment: .leading)
+                    Text("\(track.song)")
+                        .font(.custom("DIN Condensed Bold", size: 12))
+                        .foregroundColor(Color.gray)
+                        .frame(width: geometry.size.width, alignment: .leading)
+                }
+                .padding(.leading, 5)
+                .padding(.top, 7)
+                .padding(.bottom, 5)
+
+            }
+            .border(Color.gray, width: 1)
+            
+        }
+    }
+}
+
+struct BehindDoorSongHistory: View {
+    var track: Tracks
+    
+    var body: some View {
+        GeometryReader { geometry in
+            
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est test.")
+                        .font(.custom("DIN Condensed Bold", size: 14))
+                        .lineLimit(nil)
+                        .lineSpacing(2)
+                        .foregroundColor(Color.gray)
+                        .frame(width: geometry.size.width, alignment: .leading)
+                }
+                .padding(.leading, 5)
+                .padding(.top, 15)
+                .padding(.bottom, 8)
+                .padding(.trailing, 40)
+
+            }
+            .border(Color.gray, width: 1)
+            
+        }
+    }
+}
+
+
 
 
 struct HallwayTrack: View {
@@ -1206,7 +1345,6 @@ struct LeftDisplayDoor: View, NormalizeSound {
                 Image("metalA")
                     .resizable()
                     .frame(width: geometry.size.width*0.70, height: 500)
-                    //animate 8 to 20?
                     .blur(radius: 8)
                     .mask(LeftDisplayBackPlateRaw())
                 
