@@ -221,6 +221,27 @@ struct LogList: View {
         UITableView.appearance().backgroundColor = UIColor(Color.offWhite)
     }
     
+    /*
+     VStack(alignment: .leading, spacing: 0) {
+         ForEach(tracks) { track in
+             Button(action: {
+                 if let trackButtonHit = Int(track.id) {
+                     selectedKey = trackButtonHit
+                 }
+             }) {
+                 TrackCell(selectedKey: $selectedKey, currentTime: $currentTime, track: track)
+                     .id(Int(track.id))
+                     //.id(UUID())
+                     .transition(.slide)
+             }
+
+         }
+         Spacer()
+     }
+     .offset(y: currentYOffset)
+     //need scrollview
+     */
+    
     var body: some View {
         VStack {
             Spacer()
@@ -228,6 +249,7 @@ struct LogList: View {
             Text("Log Entries")
                 .font(.custom("DIN Condensed Bold", size: 24))
                 .foregroundColor(Color.gray)
+            /*
             List {
                 ForEach(logEntries.displayItems(), id: \.id) { log in
                     LogCellView(logEntry: log)
@@ -236,6 +258,14 @@ struct LogList: View {
                 .listRowBackground(Color.white)
                 .animation(.default)
                 
+            }
+ */
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    ForEach(logEntries.displayItems(), id: \.id) { log in
+                        LogCellView(logEntry: log)
+                    }
+                }
             }
         }
     }
@@ -268,7 +298,7 @@ struct LogCellView: View {
                 .offset(x: 0)
             Spacer()
                 .frame(width: 20)
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("\(logEntry.loggedDate)")
                     .font(.custom("DIN Condensed Bold", size: 20))
                     .foregroundColor(Color.gray)
@@ -276,8 +306,25 @@ struct LogCellView: View {
                     Text("\(logEntry.loggedUserText)")
                         .font(.custom("DIN Condensed Bold", size: 16))
                         .foregroundColor(Color.gray)
+                    HStack {
+                        Image("twitter")
+                            .resizable()
+                            .saturation(0.0)
+                            .frame(width: 25, height: 25)
+                        Image("bandcamp")
+                            .resizable()
+                            .saturation(0.0)
+                            .frame(width: 25, height: 25)
+                    }
                 }
             }
+            Spacer()
+            ArrowUp(parentSize: 6)
+                .foregroundColor(.gray)
+                .frame(width: 25, height: 20)
+                .rotationEffect(.degrees(showEntry ? 180 : 0))
+            Spacer()
+                .frame(width: 20)
         }
         .contentShape(Rectangle())
         .onTapGesture {
@@ -503,6 +550,7 @@ struct SubStateController: View {
 }
 
 struct StateNavigation: View {
+    @ObservedObject var logEntries = LogEntries()
     @Binding var navigationState: Int
     @Binding var slideOpen: Bool
     @Binding var selectedKey: Int
@@ -513,7 +561,7 @@ struct StateNavigation: View {
     var body: some View {
         VStack(alignment: .leading) {
 
-            HStack {
+            HStack(alignment: .top) {
                 Button(action: {
                     navigationState = 0
                 }) {
@@ -530,14 +578,20 @@ struct StateNavigation: View {
                         .frame(width: buttonSize, height: buttonSize)
                 }
                 .buttonStyle(SquareButtonStyle())
-                Button(action: {
-                    navigationState = 2
-                }) {
-                    NavLog(parentSize: 12)
-                        .foregroundColor(.gray)
-                        .frame(width: buttonSize, height: buttonSize)
+                VStack {
+                    Button(action: {
+                        navigationState = 2
+                    }) {
+                        NavLog(parentSize: 12)
+                            .foregroundColor(.gray)
+                            .frame(width: buttonSize, height: buttonSize)
+                    }
+                    .buttonStyle(SquareButtonStyle())
+                    Text("\(logEntries.displayItems().count)")
+                        .font(.custom("DIN Condensed Bold", size: 12))
+                        .foregroundColor(Color.gray)
                 }
-                .buttonStyle(SquareButtonStyle())
+
                 Spacer()
                 Button(action: {
                     if slideOpen {
