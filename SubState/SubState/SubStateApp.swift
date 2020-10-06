@@ -12,7 +12,7 @@ struct SubStateApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SubStateView.Screen()
         }
     }
 }

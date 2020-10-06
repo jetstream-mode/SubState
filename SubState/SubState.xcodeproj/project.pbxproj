@@ -3,13 +3,17 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		D208CFE825152069000A0C28 /* UserCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = D208CFE725152069000A0C28 /* UserCache.swift */; };
+		D2273FC7252BDFA9000BB08A /* Poet in Frameworks */ = {isa = PBXBuildFile; productRef = D2273FC6252BDFA9000BB08A /* Poet */; };
+		D2273FD5252D287E000BB08A /* SubState_Evaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2273FD4252D287E000BB08A /* SubState_Evaluator.swift */; };
+		D2273FDD252D2891000BB08A /* SubState_Translator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2273FDC252D2891000BB08A /* SubState_Translator.swift */; };
+		D2273FE2252D301C000BB08A /* ActionEvaluating+Breadcrumbing.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2273FE1252D301C000BB08A /* ActionEvaluating+Breadcrumbing.swift */; };
 		D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBCA24FF0689002E3EEB /* SubStateApp.swift */; };
-		D280FBCD24FF0689002E3EEB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBCC24FF0689002E3EEB /* ContentView.swift */; };
+		D280FBCD24FF0689002E3EEB /* SubStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBCC24FF0689002E3EEB /* SubStateView.swift */; };
 		D280FBCF24FF068A002E3EEB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D280FBCE24FF068A002E3EEB /* Assets.xcassets */; };
 		D280FBD224FF068A002E3EEB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D280FBD124FF068A002E3EEB /* Preview Assets.xcassets */; };
 		D280FBDD24FF068A002E3EEB /* SubStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBDC24FF068A002E3EEB /* SubStateTests.swift */; };
@@ -62,9 +66,12 @@
 
 /* Begin PBXFileReference section */
 		D208CFE725152069000A0C28 /* UserCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCache.swift; sourceTree = "<group>"; };
+		D2273FD4252D287E000BB08A /* SubState_Evaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubState_Evaluator.swift; sourceTree = "<group>"; };
+		D2273FDC252D2891000BB08A /* SubState_Translator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubState_Translator.swift; sourceTree = "<group>"; };
+		D2273FE1252D301C000BB08A /* ActionEvaluating+Breadcrumbing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ActionEvaluating+Breadcrumbing.swift"; sourceTree = "<group>"; };
 		D280FBC724FF0689002E3EEB /* SubState.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubState.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D280FBCA24FF0689002E3EEB /* SubStateApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubStateApp.swift; sourceTree = "<group>"; };
-		D280FBCC24FF0689002E3EEB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		D280FBCC24FF0689002E3EEB /* SubStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubStateView.swift; sourceTree = "<group>"; };
 		D280FBCE24FF068A002E3EEB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D280FBD124FF068A002E3EEB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D280FBD324FF068A002E3EEB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -108,6 +115,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D2273FC7252BDFA9000BB08A /* Poet in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,6 +155,16 @@
 			path = mp3;
 			sourceTree = "<group>";
 		};
+		D2273FD3252D2827000BB08A /* Poet */ = {
+			isa = PBXGroup;
+			children = (
+				D2273FD4252D287E000BB08A /* SubState_Evaluator.swift */,
+				D2273FDC252D2891000BB08A /* SubState_Translator.swift */,
+				D2273FE1252D301C000BB08A /* ActionEvaluating+Breadcrumbing.swift */,
+			);
+			path = Poet;
+			sourceTree = "<group>";
+		};
 		D280FBBE24FF0689002E3EEB = {
 			isa = PBXGroup;
 			children = (
@@ -178,8 +196,9 @@
 				D280FC162500558C002E3EEB /* Fonts */,
 				D280FBFD250054C0002E3EEB /* Keys */,
 				D2E9EBF1250A847F00AEBF89 /* Protocols */,
+				D2273FD3252D2827000BB08A /* Poet */,
 				D280FBCA24FF0689002E3EEB /* SubStateApp.swift */,
-				D280FBCC24FF0689002E3EEB /* ContentView.swift */,
+				D280FBCC24FF0689002E3EEB /* SubStateView.swift */,
 				D280FBFB24FF08C2002E3EEB /* MiscShapes.swift */,
 				D280FBF724FF0735002E3EEB /* CorridorView.swift */,
 				D280FC742507EC65002E3EEB /* TracksContainer.swift */,
@@ -302,6 +321,9 @@
 			dependencies = (
 			);
 			name = SubState;
+			packageProductDependencies = (
+				D2273FC6252BDFA9000BB08A /* Poet */,
+			);
 			productName = SubState;
 			productReference = D280FBC724FF0689002E3EEB /* SubState.app */;
 			productType = "com.apple.product-type.application";
@@ -373,6 +395,9 @@
 				Base,
 			);
 			mainGroup = D280FBBE24FF0689002E3EEB;
+			packageReferences = (
+				D2273FC5252BDFA9000BB08A /* XCRemoteSwiftPackageReference "Poet" */,
+			);
 			productRefGroup = D280FBC824FF0689002E3EEB /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -429,8 +454,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D2273FE2252D301C000BB08A /* ActionEvaluating+Breadcrumbing.swift in Sources */,
 				D280FBF824FF0735002E3EEB /* CorridorView.swift in Sources */,
 				D2E9EC13250C248E00AEBF89 /* EmitterView.swift in Sources */,
+				D2273FD5252D287E000BB08A /* SubState_Evaluator.swift in Sources */,
 				D2CD83FB2514099E00B98D91 /* DataLoader.swift in Sources */,
 				D280FBFC24FF08C2002E3EEB /* MiscShapes.swift in Sources */,
 				D208CFE825152069000A0C28 /* UserCache.swift in Sources */,
@@ -438,7 +465,8 @@
 				D2F63886251D33D4000A2828 /* ShapeView.swift in Sources */,
 				D280FC932508376A002E3EEB /* SubStatePlayer.swift in Sources */,
 				D280FC752507EC65002E3EEB /* TracksContainer.swift in Sources */,
-				D280FBCD24FF0689002E3EEB /* ContentView.swift in Sources */,
+				D2273FDD252D2891000BB08A /* SubState_Translator.swift in Sources */,
+				D280FBCD24FF0689002E3EEB /* SubStateView.swift in Sources */,
 				D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */,
 				D280FC6E2502E9FE002E3EEB /* Bundle-Decodable.swift in Sources */,
 				D280FBFA24FF074D002E3EEB /* KeyDrag.swift in Sources */,
@@ -772,6 +800,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D2273FC5252BDFA9000BB08A /* XCRemoteSwiftPackageReference "Poet" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stevecotner/Poet.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.37;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D2273FC6252BDFA9000BB08A /* Poet */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D2273FC5252BDFA9000BB08A /* XCRemoteSwiftPackageReference "Poet" */;
+			productName = Poet;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D280FBBF24FF0689002E3EEB /* Project object */;
 }

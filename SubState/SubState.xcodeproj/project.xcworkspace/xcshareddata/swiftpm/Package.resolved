@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Poet",
+        "repositoryURL": "https://github.com/stevecotner/Poet.git",
+        "state": {
+          "branch": null,
+          "revision": "733ca1c7727afdb8b1357336bbe8a6bc68d08542",
+          "version": "0.0.37"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
