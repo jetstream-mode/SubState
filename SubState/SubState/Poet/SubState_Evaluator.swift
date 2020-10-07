@@ -52,8 +52,12 @@ extension SubStateView.Evaluator: Evaluating, Evaluating_ViewCycle {
 
         
     enum Action: EvaluatorAction, EvaluatorAction_ViewCycle {
+        
         case onAppear
         case onDisappear
+        case navSelectTracks
+        case navAddLog
+        case navListLog
     }
     
     func evaluate(_ action: Action?) {
@@ -62,6 +66,12 @@ extension SubStateView.Evaluator: Evaluating, Evaluating_ViewCycle {
             debugPrint("on appear sub state!")
         case .onDisappear:
             break
+        case .navSelectTracks:
+            debugPrint("nav select tracks")
+        case .navAddLog:
+            debugPrint("nav add log")
+        case .navListLog:
+            debugPrint("nav list log")
         case .none:
             break
         }
