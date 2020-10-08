@@ -45,6 +45,34 @@ extension SubStateView.Evaluator {
     struct ListLogState {
         var pageTitle: String
     }
+    
+    func showListTracksState() {
+        
+        let state = ListTracksState(
+            pageTitle: "List Tracks",
+            tracks: [])
+        
+        self.state = .listTracks(state)
+    }
+    
+    func showAddLogState() {
+        
+        let state = AddLogState(
+            pageTitle: "Add Log",
+            tracks: [])
+        
+        self.state = .addLog(state)
+    }
+    
+    func showListLogState() {
+        
+        let state = ListLogState(
+            pageTitle: "List Log")
+        
+        self.state = .listLog(state)
+    }
+    
+    
 }
 
 // MARK: View Cycle
@@ -67,11 +95,11 @@ extension SubStateView.Evaluator: Evaluating, Evaluating_ViewCycle {
         case .onDisappear:
             break
         case .navSelectTracks:
-            debugPrint("nav select tracks")
+            showListTracksState()
         case .navAddLog:
-            debugPrint("nav add log")
+            showAddLogState()
         case .navListLog:
-            debugPrint("nav list log")
+            showListLogState()
         case .none:
             break
         }

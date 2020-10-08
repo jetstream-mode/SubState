@@ -100,6 +100,7 @@ extension SubStateView {
                 }
                 
                 VStack(alignment: .leading) {
+                    
                     //state 0
                     if navigationState == 0 {
                         TrackScrollList(currentTime: $currentTime, soundSamples: $soundSamples, navigationState: $navigationState, tracks: tracks, selectedKey: $selectedKey)
