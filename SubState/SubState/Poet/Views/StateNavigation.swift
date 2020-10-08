@@ -72,7 +72,6 @@ extension SubStateView {
                         } else {
                             slideOpen = false
                             selectedKey -= 1
-                            //allKeys.shuffle()
                             if selectedKey < 0 {
                                 selectedKey = 0
                             }
@@ -84,7 +83,7 @@ extension SubStateView {
                     }
                     .buttonStyle(SquareButtonStyle())
                     Button(action: {
-                        //playPause.toggle()
+                        playPause.toggle()
                     }) {
                         if playPause {
                             ArrowPause(parentSize: 8)
