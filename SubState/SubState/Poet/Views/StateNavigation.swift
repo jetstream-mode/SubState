@@ -7,12 +7,26 @@
 
 import Poet
 import SwiftUI
+/*
+ case navSelectTracks
+ case navAddLog
+ case navListLog
+ 
+ */
 
+/*
+protocol Evaluating_Nav: Evaluating where Action: EvaluatorAction_Nav { }
+
+protocol EvaluatorAction_Nav: EvaluatorAction {
+    static func navSelectTracks() -> Self
+    static func navAddLog() -> Self
+    static func navListLog() -> Self
+}
+ */
 extension SubStateView {
-    
-    struct StateNavigation: View {
+    struct StateNavigation<E: Evaluator>: View {
         
-        let evaluator: Evaluator
+        let evaluator: E
         
         @ObservedObject var logEntries = LogEntries()
         //@Binding var navigationState: Int
@@ -129,5 +143,8 @@ extension SubStateView {
         }
     }
 }
+
+
+
 
 

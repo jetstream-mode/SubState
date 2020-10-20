@@ -8,6 +8,7 @@
 import Poet
 import SwiftUI
 
+
 struct SubStateView {}
 
 extension SubStateView {
@@ -53,52 +54,6 @@ extension SubStateView {
         var body: some View {
             ZStack {
                 Color.offWhite
-                //if navigationState == 1 && slideOpen {
-                if translator.navId == 1 && slideOpen {
-
-                    if selectedKey == 1 {
-                        EmitterView(
-                            particleViews: [AnyView(KeyOneRaw()
-                                                        .foregroundColor(.gray)
-                                                        .frame(width: 10, height: 10))],
-                            particleCount: 20 + audioPulse,
-                            creationPoint: .leading,
-                            creationRange: CGSize(width: 0, height: 0),
-                            colors: [.gray, .red],
-                            alphaSpeed: 10,
-                            angle: Angle(degrees: 90),
-                            angleRange: Angle(degrees: 0),
-                            //rotation: Angle(degrees: Double(audioPulse)),
-                            //rotationRange: Angle(degrees: Double(audioPulse)),
-                            //rotationSpeed: Angle(degrees: Double(audioPulse)),
-                            scale: CGFloat(audioPulse) * 0.3,
-                            scaleRange: CGFloat(audioPulse) * 0.3,
-                            scaleSpeed: 0.4,
-                            speed: 1200,
-                            speedRange: Double(audioPulse * 25),
-                            animation: Animation.linear(duration: 2).repeatForever(autoreverses: true).delay(0.5), animationDelayThreshold: 5
-                            )
-                        .offset(x: 0)
-                    } else if selectedKey == 0 {
-                        ZStack(alignment: .top) {
-                            ForEach(0..<20) { i in
-                                // 100 30 0
-                                Wave(strength: waveStrength, frequency: waveFrequency, phase: phase)
-                                    .stroke(Color.gray.opacity(Double(i) / 10), lineWidth: CGFloat(audioPulse))
-                                    .offset(y: CGFloat(i) * 15)
-                            }
-                        }
-                        .onAppear {
-                            withAnimation(Animation.linear(duration: 0.7).repeatForever(autoreverses: false)) {
-                                self.phase = .pi * 2
-                            }
-                        }
-                        .onDisappear {
-                            self.phase = 0.0
-                        }
-                    }
-
-                }
                 
                 VStack(alignment: .leading) {
                     
@@ -123,7 +78,7 @@ extension SubStateView {
 
                     SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
                     //StateNavigation(navigationState: $navigationState, slideOpen: $slideOpen, selectedKey: $selectedKey, allKeys: $allKeys, playPause: $playPause)
-                    StateNavigation(evaluator: evaluator, slideOpen: $slideOpen, selectedKey: $selectedKey, playPause: $playPause)
+                    StateNavigation(evaluator: self.evaluator, slideOpen: $slideOpen, selectedKey: $selectedKey, playPause: $playPause)
                     HStack {
                         Spacer()
                         Text("\(currentTime)")
@@ -213,7 +168,7 @@ extension SubStateView {
 
 struct LogList: View {
     @ObservedObject var logEntries = LogEntries()
-
+//loggedUserText
     
     init() {
         UITableView.appearance().separatorStyle = .singleLine
@@ -259,6 +214,7 @@ struct LogList: View {
                 
             }
  */
+            /*
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     ForEach(logEntries.displayItems(), id: \.id) { log in
@@ -266,6 +222,13 @@ struct LogList: View {
                     }
                 }
             }
+ */
+            //filtering list
+            FilteringList(logEntries.items, filterKeys: \.loggedUserText, \.loggedDate) { log in
+                LogCellView(logEntry: log)
+            }
+            .animation(nil)
+
         }
     }
     
@@ -327,9 +290,10 @@ struct LogCellView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            withAnimation {
-                self.showEntry.toggle()
-            }
+//            withAnimation {
+//                
+//            }
+            self.showEntry.toggle()
         }
     }
 }

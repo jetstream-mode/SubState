@@ -42,6 +42,7 @@
 		D280FC732502EF87002E3EEB /* tracks.json in Resources */ = {isa = PBXBuildFile; fileRef = D280FC712502EDC9002E3EEB /* tracks.json */; };
 		D280FC752507EC65002E3EEB /* TracksContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FC742507EC65002E3EEB /* TracksContainer.swift */; };
 		D280FC932508376A002E3EEB /* SubStatePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FC922508376A002E3EEB /* SubStatePlayer.swift */; };
+		D2B593A2253E914F008265E0 /* FilteringList.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B593A1253E914F008265E0 /* FilteringList.swift */; };
 		D2CD83FB2514099E00B98D91 /* DataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2CD83FA2514099E00B98D91 /* DataLoader.swift */; };
 		D2E9EBF3250A9A9500AEBF89 /* NormalizeSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E9EBF2250A9A9500AEBF89 /* NormalizeSound.swift */; };
 		D2E9EC13250C248E00AEBF89 /* EmitterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E9EC12250C248E00AEBF89 /* EmitterView.swift */; };
@@ -107,6 +108,7 @@
 		D280FC712502EDC9002E3EEB /* tracks.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tracks.json; sourceTree = "<group>"; };
 		D280FC742507EC65002E3EEB /* TracksContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracksContainer.swift; sourceTree = "<group>"; };
 		D280FC922508376A002E3EEB /* SubStatePlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubStatePlayer.swift; sourceTree = "<group>"; };
+		D2B593A1253E914F008265E0 /* FilteringList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteringList.swift; sourceTree = "<group>"; };
 		D2CD83FA2514099E00B98D91 /* DataLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLoader.swift; sourceTree = "<group>"; };
 		D2E9EBF2250A9A9500AEBF89 /* NormalizeSound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NormalizeSound.swift; sourceTree = "<group>"; };
 		D2E9EC12250C248E00AEBF89 /* EmitterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmitterView.swift; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 			children = (
 				D2273FE7252E823A000BB08A /* StateNavigation.swift */,
 				D2273FFB252FA59A000BB08A /* OldKeyGrid.swift */,
+				D2B593A1253E914F008265E0 /* FilteringList.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -476,6 +479,7 @@
 				D280FBFC24FF08C2002E3EEB /* MiscShapes.swift in Sources */,
 				D208CFE825152069000A0C28 /* UserCache.swift in Sources */,
 				D280FBF624FF0723002E3EEB /* KeyShapes.swift in Sources */,
+				D2B593A2253E914F008265E0 /* FilteringList.swift in Sources */,
 				D2F63886251D33D4000A2828 /* ShapeView.swift in Sources */,
 				D280FC932508376A002E3EEB /* SubStatePlayer.swift in Sources */,
 				D280FC752507EC65002E3EEB /* TracksContainer.swift in Sources */,

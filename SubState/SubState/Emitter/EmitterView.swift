@@ -16,6 +16,56 @@ class AnyShape {
 }
  */
 
+/*
+ /*
+ if translator.navId == 1 && slideOpen {
+
+     if selectedKey == 1 {
+         EmitterView(
+             particleViews: [AnyView(KeyOneRaw()
+                                         .foregroundColor(.gray)
+                                         .frame(width: 10, height: 10))],
+             particleCount: 20 + audioPulse,
+             creationPoint: .leading,
+             creationRange: CGSize(width: 0, height: 0),
+             colors: [.gray, .red],
+             alphaSpeed: 10,
+             angle: Angle(degrees: 90),
+             angleRange: Angle(degrees: 0),
+             //rotation: Angle(degrees: Double(audioPulse)),
+             //rotationRange: Angle(degrees: Double(audioPulse)),
+             //rotationSpeed: Angle(degrees: Double(audioPulse)),
+             scale: CGFloat(audioPulse) * 0.3,
+             scaleRange: CGFloat(audioPulse) * 0.3,
+             scaleSpeed: 0.4,
+             speed: 1200,
+             speedRange: Double(audioPulse * 25),
+             animation: Animation.linear(duration: 2).repeatForever(autoreverses: true).delay(0.5), animationDelayThreshold: 5
+             )
+         .offset(x: 0)
+     } else if selectedKey == 0 {
+         ZStack(alignment: .top) {
+             ForEach(0..<20) { i in
+                 // 100 30 0
+                 Wave(strength: waveStrength, frequency: waveFrequency, phase: phase)
+                     .stroke(Color.gray.opacity(Double(i) / 10), lineWidth: CGFloat(audioPulse))
+                     .offset(y: CGFloat(i) * 15)
+             }
+         }
+         .onAppear {
+             withAnimation(Animation.linear(duration: 0.7).repeatForever(autoreverses: false)) {
+                 self.phase = .pi * 2
+             }
+         }
+         .onDisappear {
+             self.phase = 0.0
+         }
+     }
+
+ }
+*/
+ */
+
 
 /// A particle emitter that creates a series of `ParticleView` instances for individual particles.
 struct EmitterView: View {
