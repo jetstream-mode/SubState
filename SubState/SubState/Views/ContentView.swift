@@ -38,20 +38,7 @@ struct ContentView: View {
             Color.offWhite
 
             if navigationState == 1 && slideOpen {
-                /*
-                EmitterView(images: ["homecoming"], particleCount: 20, creationPoint: .init(x: 0.5, y: -0.1), creationRange: CGSize(width: 1, height: 0), colors: [.red, .blue], angle: Angle(degrees: 180), angleRange: Angle(radians: .pi / 4), rotationRange: Angle(radians: .pi * 2), rotationSpeed: Angle(radians: .pi), scale: 0.6, speed: 1200, speedRange: 800, animation: Animation.linear(duration: 15).repeatForever(autoreverses: false), animationDelayThreshold: 5)
-                 
-                 AnyView(KeyOneRaw()
-                             .foregroundColor(.gray)
-                             .frame(width: 10, height: 10))
-                 
-                 particleViews: [AnyView(KeyOneRaw()
-                                 .foregroundColor(.gray)
-                                 .frame(width: 50, height: 50)
-                                             .blur(radius: CGFloat.random(in: 0...10))
-                 
-                 AnyView(Image("confetti"))
- */
+
                 if selectedKey == 1 {
                     EmitterView(
                         particleViews: [AnyView(KeyOneRaw()
@@ -110,16 +97,6 @@ struct ContentView: View {
                             SlidingEntry(doorIndex: value, tracks: tracks, soundSamples: $soundSamples, currentTime: $currentTime, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
                         }
                     }
-                    //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
-                    //.transition(AnyTransition.identity)
-                    //.offset(y: -50)
-/*
-                    keyGrid(navigationState: $navigationState, selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys, keyDragId: $keyDragId)
-                        .offset(y: -40)
-                        .transition(AnyTransition.identity)
- */
- 
-
 
                 } else if navigationState == 2 {
                     //log state
