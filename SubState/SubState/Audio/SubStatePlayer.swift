@@ -72,6 +72,7 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
                         self.audioPlayer.currentTime = playHead
                     }
                     self.audioPlayer.play()
+                    self.audioPlayer.volume = 0
                     DispatchQueue.main.async {
                         self.songComplete = false
                     }
@@ -91,6 +92,8 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
         
         //samples
         self.audioPlayer.updateMeters()
+        self.audioPlayer.peakPower(forChannel: 0)
+        
         self.soundSamples[self.currentSample] = self.audioPlayer.averagePower(forChannel: 0)
         self.currentSample = (self.currentSample + 1) % self.numberOfSamples
         

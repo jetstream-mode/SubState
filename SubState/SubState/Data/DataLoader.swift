@@ -11,7 +11,7 @@ import SwiftUI
 @propertyWrapper
 struct DataLoader<T> where T: Decodable {
     private let fileName: String
-
+    
     var wrappedValue: T {
         get {
             guard let result = loadJson(fileName: fileName) else {
@@ -19,23 +19,7 @@ struct DataLoader<T> where T: Decodable {
             }
             return result
         }
-        
-        nonmutating set {
-
-        }
-
-
     }
-    
-    //public var projectedValue: T { return wrappedValue }
-    /*
-    public var projectedValue: Binding<T> {
-        return Binding(
-            get: { wrappedValue },
-            set: { wrappedValue = $0 }
-        )
-    }
- */
 
     init(_ fileName: String) {
         self.fileName = fileName
@@ -45,5 +29,6 @@ struct DataLoader<T> where T: Decodable {
         return Bundle.main.decode(T.self, from: fileName)
     }
     
-    //public var projectedValue: Binding<T>
 }
+
+
