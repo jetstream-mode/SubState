@@ -17,9 +17,10 @@
 		0872F5D3256F0D9B00AE80BD /* Hideable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5CE256F0D9B00AE80BD /* Hideable.swift */; };
 		0872F5F3256F11E100AE80BD /* SubState-Evaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5F2256F11E100AE80BD /* SubState-Evaluator.swift */; };
 		0872F5F8256F11EB00AE80BD /* SubState-Translator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5F7256F11EB00AE80BD /* SubState-Translator.swift */; };
+		0872F60C25735F7C00AE80BD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F60B25735F7C00AE80BD /* ContentView.swift */; };
 		D208CFE825152069000A0C28 /* UserCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = D208CFE725152069000A0C28 /* UserCache.swift */; };
 		D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBCA24FF0689002E3EEB /* SubStateApp.swift */; };
-		D280FBCD24FF0689002E3EEB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBCC24FF0689002E3EEB /* ContentView.swift */; };
+		D280FBCD24FF0689002E3EEB /* SubState-Screen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBCC24FF0689002E3EEB /* SubState-Screen.swift */; };
 		D280FBCF24FF068A002E3EEB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D280FBCE24FF068A002E3EEB /* Assets.xcassets */; };
 		D280FBD224FF068A002E3EEB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D280FBD124FF068A002E3EEB /* Preview Assets.xcassets */; };
 		D280FBDD24FF068A002E3EEB /* SubStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBDC24FF068A002E3EEB /* SubStateTests.swift */; };
@@ -78,10 +79,11 @@
 		0872F5CE256F0D9B00AE80BD /* Hideable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hideable.swift; sourceTree = "<group>"; };
 		0872F5F2256F11E100AE80BD /* SubState-Evaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubState-Evaluator.swift"; sourceTree = "<group>"; };
 		0872F5F7256F11EB00AE80BD /* SubState-Translator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubState-Translator.swift"; sourceTree = "<group>"; };
+		0872F60B25735F7C00AE80BD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D208CFE725152069000A0C28 /* UserCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCache.swift; sourceTree = "<group>"; };
 		D280FBC724FF0689002E3EEB /* SubState.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubState.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D280FBCA24FF0689002E3EEB /* SubStateApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubStateApp.swift; sourceTree = "<group>"; };
-		D280FBCC24FF0689002E3EEB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		D280FBCC24FF0689002E3EEB /* SubState-Screen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubState-Screen.swift"; sourceTree = "<group>"; };
 		D280FBCE24FF068A002E3EEB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D280FBD124FF068A002E3EEB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D280FBD324FF068A002E3EEB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -160,10 +162,10 @@
 		0872F5E0256F0F1B00AE80BD /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				D280FBCC24FF0689002E3EEB /* ContentView.swift */,
 				D280FBF724FF0735002E3EEB /* CorridorView.swift */,
 				0872F5F2256F11E100AE80BD /* SubState-Evaluator.swift */,
 				0872F5F7256F11EB00AE80BD /* SubState-Translator.swift */,
+				D280FBCC24FF0689002E3EEB /* SubState-Screen.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -220,6 +222,7 @@
 				D2E9EBF1250A847F00AEBF89 /* Protocols */,
 				0872F5E0256F0F1B00AE80BD /* Views */,
 				D280FBCA24FF0689002E3EEB /* SubStateApp.swift */,
+				0872F60B25735F7C00AE80BD /* ContentView.swift */,
 				D280FBCE24FF068A002E3EEB /* Assets.xcassets */,
 				D280FBD324FF068A002E3EEB /* Info.plist */,
 				D280FBD024FF068A002E3EEB /* Preview Content */,
@@ -460,6 +463,7 @@
 			files = (
 				D280FBF824FF0735002E3EEB /* CorridorView.swift in Sources */,
 				0872F5CF256F0D9B00AE80BD /* ButtonEvaluating.swift in Sources */,
+				0872F60C25735F7C00AE80BD /* ContentView.swift in Sources */,
 				0872F5F3256F11E100AE80BD /* SubState-Evaluator.swift in Sources */,
 				D2E9EC13250C248E00AEBF89 /* EmitterView.swift in Sources */,
 				D2CD83FB2514099E00B98D91 /* DataLoader.swift in Sources */,
@@ -475,7 +479,7 @@
 				0872F5C4256F0D6D00AE80BD /* EvaluatorElement.swift in Sources */,
 				0872F5D3256F0D9B00AE80BD /* Hideable.swift in Sources */,
 				0872F5F8256F11EB00AE80BD /* SubState-Translator.swift in Sources */,
-				D280FBCD24FF0689002E3EEB /* ContentView.swift in Sources */,
+				D280FBCD24FF0689002E3EEB /* SubState-Screen.swift in Sources */,
 				D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */,
 				D280FC6E2502E9FE002E3EEB /* Bundle-Decodable.swift in Sources */,
 				D2E9EBF3250A9A9500AEBF89 /* NormalizeSound.swift in Sources */,

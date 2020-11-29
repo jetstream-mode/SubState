@@ -60,5 +60,29 @@ extension SubState.Evaluator {
     struct ListLogState {
         var pageTitle: String
     }
+    
+    func viewDidAppear() {
+        if state == nil {
+            listTracks()
+        }
+    }
+    
+    func listTracks() {
+        state = .listTracks(
+            ListTracksState(pageTitle: "list tracks", tracks: [])
+        )
+    }
+    
+    func addLog() {
+        state = .addLog(
+            AddLogState(pageTitle: "add log", tracks: [])
+        )
+    }
+    
+    func listLog() {
+        state = .listLog(
+            ListLogState(pageTitle: "list log")
+        )
+    }
 }
 

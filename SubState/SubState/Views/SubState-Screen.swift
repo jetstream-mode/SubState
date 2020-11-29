@@ -7,187 +7,201 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    @DataLoader("tracks.json") private var tracks: [Tracks]
-    
-    @ObservedObject var subStatePlayer = SubStatePlayer()
-    @State var currentTime: String = ""
-    @State var soundSamples: [Float] = []
-    @State var audioPulse: Int = 0
-    //wave properties
-    @State var phase: Double = 0.0
-    @State var waveStrength: Double = 0.0
-    @State var waveFrequency: Double = 10.0
-    
-    let keySize: CGFloat = 25
-    @State var selectedKey: Int = UserDefaults.standard.integer(forKey: "savedkey")
-    @State var slideOpen: Bool = false
-    @State var allKeys: [Any] = [KeyOne.self, KeyTwo.self, KeyThree.self, KeyFour.self, KeyFive.self, KeySix.self, KeySeven.self, KeyEight.self, KeyNine.self, KeyTen.self, KeyEleven.self, KeyTwelve.self]
-    
-    @State var keyDragId: Int = 0
-    
-    @State var navigationState: Int = UserDefaults.standard.integer(forKey: "navstate")
-    
-    @State var playPause: Bool = UserDefaults.standard.bool(forKey: "playpause")
-    
-    @State var playerTime: TimeInterval = UserDefaults.standard.double(forKey: "atsatime")
-    
+extension SubState {
+    struct Screen: View {
+        //poet flow
+        let evaluator: Evaluator
+        let translator: Translator
+        typealias Element = Evaluator.Element
+        
+        @DataLoader("tracks.json") private var tracks: [Tracks]
+        
+        @ObservedObject var subStatePlayer = SubStatePlayer()
+        @State var currentTime: String = ""
+        @State var soundSamples: [Float] = []
+        @State var audioPulse: Int = 0
+        //wave properties
+        @State var phase: Double = 0.0
+        @State var waveStrength: Double = 0.0
+        @State var waveFrequency: Double = 10.0
+        
+        let keySize: CGFloat = 25
+        @State var selectedKey: Int = UserDefaults.standard.integer(forKey: "savedkey")
+        @State var slideOpen: Bool = false
+        @State var allKeys: [Any] = [KeyOne.self, KeyTwo.self, KeyThree.self, KeyFour.self, KeyFive.self, KeySix.self, KeySeven.self, KeyEight.self, KeyNine.self, KeyTen.self, KeyEleven.self, KeyTwelve.self]
+        
+        @State var keyDragId: Int = 0
+        
+        @State var navigationState: Int = UserDefaults.standard.integer(forKey: "navstate")
+        
+        @State var playPause: Bool = UserDefaults.standard.bool(forKey: "playpause")
+        
+        @State var playerTime: TimeInterval = UserDefaults.standard.double(forKey: "atsatime")
+        
+        init() {
+            evaluator = Evaluator()
+            translator = evaluator.translator
+        }
+        
 
-    var body: some View {
-        ZStack {
-            Color.offWhite
+        var body: some View {
+            ZStack {
+                Color.offWhite
 
-            if navigationState == 1 && slideOpen {
+                if navigationState == 1 && slideOpen {
 
-                if selectedKey == 1 {
-                    EmitterView(
-                        particleViews: [AnyView(KeyOneRaw()
-                                                    .foregroundColor(.gray)
-                                                    .frame(width: 10, height: 10))],
-                        particleCount: 20 + audioPulse,
-                        creationPoint: .leading,
-                        creationRange: CGSize(width: 0, height: 0),
-                        colors: [.gray, .red],
-                        alphaSpeed: 10,
-                        angle: Angle(degrees: 90),
-                        angleRange: Angle(degrees: 0),
-                        //rotation: Angle(degrees: Double(audioPulse)),
-                        //rotationRange: Angle(degrees: Double(audioPulse)),
-                        //rotationSpeed: Angle(degrees: Double(audioPulse)),
-                        scale: CGFloat(audioPulse) * 0.3,
-                        scaleRange: CGFloat(audioPulse) * 0.3,
-                        scaleSpeed: 0.4,
-                        speed: 1200,
-                        speedRange: Double(audioPulse * 25),
-                        animation: Animation.linear(duration: 2).repeatForever(autoreverses: true).delay(0.5), animationDelayThreshold: 5
-                        )
-                    .offset(x: 0)
-                } else if selectedKey == 0 {
-                    ZStack(alignment: .top) {
-                        ForEach(0..<20) { i in
-                            // 100 30 0
-                            Wave(strength: waveStrength, frequency: waveFrequency, phase: phase)
-                                .stroke(Color.gray.opacity(Double(i) / 10), lineWidth: CGFloat(audioPulse))
-                                .offset(y: CGFloat(i) * 15)
+                    if selectedKey == 1 {
+                        EmitterView(
+                            particleViews: [AnyView(KeyOneRaw()
+                                                        .foregroundColor(.gray)
+                                                        .frame(width: 10, height: 10))],
+                            particleCount: 20 + audioPulse,
+                            creationPoint: .leading,
+                            creationRange: CGSize(width: 0, height: 0),
+                            colors: [.gray, .red],
+                            alphaSpeed: 10,
+                            angle: Angle(degrees: 90),
+                            angleRange: Angle(degrees: 0),
+                            //rotation: Angle(degrees: Double(audioPulse)),
+                            //rotationRange: Angle(degrees: Double(audioPulse)),
+                            //rotationSpeed: Angle(degrees: Double(audioPulse)),
+                            scale: CGFloat(audioPulse) * 0.3,
+                            scaleRange: CGFloat(audioPulse) * 0.3,
+                            scaleSpeed: 0.4,
+                            speed: 1200,
+                            speedRange: Double(audioPulse * 25),
+                            animation: Animation.linear(duration: 2).repeatForever(autoreverses: true).delay(0.5), animationDelayThreshold: 5
+                            )
+                        .offset(x: 0)
+                    } else if selectedKey == 0 {
+                        ZStack(alignment: .top) {
+                            ForEach(0..<20) { i in
+                                // 100 30 0
+                                Wave(strength: waveStrength, frequency: waveFrequency, phase: phase)
+                                    .stroke(Color.gray.opacity(Double(i) / 10), lineWidth: CGFloat(audioPulse))
+                                    .offset(y: CGFloat(i) * 15)
+                            }
+                        }
+                        .onAppear {
+                            withAnimation(Animation.linear(duration: 0.7).repeatForever(autoreverses: false)) {
+                                self.phase = .pi * 2
+                            }
+                        }
+                        .onDisappear {
+                            self.phase = 0.0
                         }
                     }
-                    .onAppear {
-                        withAnimation(Animation.linear(duration: 0.7).repeatForever(autoreverses: false)) {
-                            self.phase = .pi * 2
+
+                }
+                
+                VStack(alignment: .leading) {
+                    //state 0
+                    if navigationState == 0 {
+                        TrackScrollList(currentTime: $currentTime, soundSamples: $soundSamples, navigationState: $navigationState, tracks: tracks, selectedKey: $selectedKey)
+                            //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
+                            .transition(AnyTransition.identity)
+                    } else if navigationState == 1 {
+                        //state 1
+                        
+                        CorridorView(currentIndex: $selectedKey) {
+                            ForEach(0..<12) { value in
+                                SlidingEntry(doorIndex: value, tracks: tracks, soundSamples: $soundSamples, currentTime: $currentTime, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
+                            }
                         }
+
+                    } else if navigationState == 2 {
+                        //log state
+                        LogList()
                     }
-                    .onDisappear {
-                        self.phase = 0.0
+
+                    SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
+                    StateNavigation(navigationState: $navigationState, slideOpen: $slideOpen, selectedKey: $selectedKey, allKeys: $allKeys, playPause: $playPause)
+                    HStack {
+                        Spacer()
+                        Text("\(currentTime)")
+                            .font(.custom("DIN Condensed Bold", size: 16))
+                            .foregroundColor(Color.gray)
+                        Spacer()
+                            .frame(width: 20)
+                    }
+
+                }
+                .offset(x: 0, y: -30)
+                .animation(.default)
+                .onChange(of: selectedKey) { newKey in
+                    playPause = true
+                    subStatePlayer.playTrack(track: tracks[newKey].fileName)
+                }
+                .onChange(of: subStatePlayer.trackTime) { newTime in
+                    currentTime = newTime
+                }
+                .onChange(of: subStatePlayer.soundSamples) { samples in
+                    soundSamples = samples
+                }
+                .onChange(of: subStatePlayer.audioPulse) { pulse in
+                    audioPulse = pulse
+                    //phase = Double(pulse)
+                    waveStrength = Double(pulse*4)
+                    //waveFrequency = Double(pulse)
+                }
+                .onChange(of: subStatePlayer.songComplete) { songComplete in
+                    if songComplete {
+                        if selectedKey < 11 {
+                            selectedKey += 1
+                            subStatePlayer.playTrack(track: tracks[selectedKey].fileName)
+                        }
                     }
                 }
-
-            }
-            
-            VStack(alignment: .leading) {
-                //state 0
-                if navigationState == 0 {
-                    TrackScrollList(currentTime: $currentTime, soundSamples: $soundSamples, navigationState: $navigationState, tracks: tracks, selectedKey: $selectedKey)
-                        //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
-                        .transition(AnyTransition.identity)
-                } else if navigationState == 1 {
-                    //state 1
+                .onChange(of: playPause) { pp in
                     
-                    CorridorView(currentIndex: $selectedKey) {
-                        ForEach(0..<12) { value in
-                            SlidingEntry(doorIndex: value, tracks: tracks, soundSamples: $soundSamples, currentTime: $currentTime, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
-                        }
+                    if !pp {
+                        subStatePlayer.pausePlayer()
+                        playerTime = subStatePlayer.audioPlayer.currentTime
+                        UserDefaults.standard.set(playerTime, forKey: "atsatime")
+                        UserDefaults.standard.set(selectedKey, forKey: "savedkey")
+                        UserDefaults.standard.set(playPause, forKey: "playpause")
+                    } else {
+                        //subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
+                        subStatePlayer.resumePlayer()
+                        UserDefaults.standard.set(playPause, forKey: "playpause")
                     }
-
-                } else if navigationState == 2 {
-                    //log state
-                    LogList()
+                    
                 }
-
-                SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
-                StateNavigation(navigationState: $navigationState, slideOpen: $slideOpen, selectedKey: $selectedKey, allKeys: $allKeys, playPause: $playPause)
-                HStack {
-                    Spacer()
-                    Text("\(currentTime)")
-                        .font(.custom("DIN Condensed Bold", size: 16))
-                        .foregroundColor(Color.gray)
-                    Spacer()
-                        .frame(width: 20)
-                }
-
-            }
-            .offset(x: 0, y: -30)
-            .animation(.default)
-            .onChange(of: selectedKey) { newKey in
-                playPause = true
-                subStatePlayer.playTrack(track: tracks[newKey].fileName)
-            }
-            .onChange(of: subStatePlayer.trackTime) { newTime in
-                currentTime = newTime
-            }
-            .onChange(of: subStatePlayer.soundSamples) { samples in
-                soundSamples = samples
-            }
-            .onChange(of: subStatePlayer.audioPulse) { pulse in
-                audioPulse = pulse
-                //phase = Double(pulse)
-                waveStrength = Double(pulse*4)
-                //waveFrequency = Double(pulse)
-            }
-            .onChange(of: subStatePlayer.songComplete) { songComplete in
-                if songComplete {
-                    if selectedKey < 11 {
-                        selectedKey += 1
-                        subStatePlayer.playTrack(track: tracks[selectedKey].fileName)
-                    }
-                }
-            }
-            .onChange(of: playPause) { pp in
-                
-                if !pp {
-                    subStatePlayer.pausePlayer()
-                    playerTime = subStatePlayer.audioPlayer.currentTime
-                    UserDefaults.standard.set(playerTime, forKey: "atsatime")
-                    UserDefaults.standard.set(selectedKey, forKey: "savedkey")
-                    UserDefaults.standard.set(playPause, forKey: "playpause")
-                } else {
-                    //subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
-                    subStatePlayer.resumePlayer()
-                    UserDefaults.standard.set(playPause, forKey: "playpause")
+                .onAppear {
+                    debugPrint("first appear")
+                    self.evaluator.viewDidAppear()
+                    playPause = true
+                    subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
+                    
                 }
                 
-            }
-            .onAppear {
-                debugPrint("first appear")
-                playPause = true
-                subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
                 
             }
-            
-            
-        }
-        .edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
-            print("Moving to the background!")
-            playerTime = subStatePlayer.audioPlayer.currentTime
-            UserDefaults.standard.set(playerTime, forKey: "atsatime")
-            UserDefaults.standard.set(selectedKey, forKey: "savedkey")
-            UserDefaults.standard.set(navigationState, forKey: "navstate")
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-            print("Moving back to the foreground!")
-            if playPause {
-                subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
+            .edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+                print("Moving to the background!")
+                playerTime = subStatePlayer.audioPlayer.currentTime
+                UserDefaults.standard.set(playerTime, forKey: "atsatime")
+                UserDefaults.standard.set(selectedKey, forKey: "savedkey")
+                UserDefaults.standard.set(navigationState, forKey: "navstate")
             }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
-            print("App will quit")
-            playerTime = subStatePlayer.audioPlayer.currentTime
-            UserDefaults.standard.set(playerTime, forKey: "atsatime")
-            UserDefaults.standard.set(selectedKey, forKey: "savedkey")
-            UserDefaults.standard.set(navigationState, forKey: "navstate")
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                print("Moving back to the foreground!")
+                if playPause {
+                    subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
+                print("App will quit")
+                playerTime = subStatePlayer.audioPlayer.currentTime
+                UserDefaults.standard.set(playerTime, forKey: "atsatime")
+                UserDefaults.standard.set(selectedKey, forKey: "savedkey")
+                UserDefaults.standard.set(navigationState, forKey: "navstate")
+            }
         }
     }
 }
+
 
 struct LogList: View {
     @ObservedObject var logEntries = LogEntries()
@@ -1005,13 +1019,6 @@ struct keyGrid: View {
         }
     }
 
-}
-
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
 }
 
 extension Color {
