@@ -96,26 +96,25 @@ extension SubState {
                 
                 VStack(alignment: .leading) {
                     //state 0
-                    if navigationState == 0 {
+                    if translator.navId == 0 {
                         TrackScrollList(currentTime: $currentTime, soundSamples: $soundSamples, navigationState: $navigationState, tracks: tracks, selectedKey: $selectedKey)
                             //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
                             .transition(AnyTransition.identity)
-                    } else if navigationState == 1 {
+                    } else if translator.navId == 1 {
                         //state 1
-                        
                         CorridorView(currentIndex: $selectedKey) {
                             ForEach(0..<12) { value in
                                 SlidingEntry(doorIndex: value, tracks: tracks, soundSamples: $soundSamples, currentTime: $currentTime, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
                             }
                         }
 
-                    } else if navigationState == 2 {
+                    } else if translator.navId == 2 {
                         //log state
                         LogList()
                     }
 
                     SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
-                    StateNavigation(navigationState: $navigationState, slideOpen: $slideOpen, selectedKey: $selectedKey, allKeys: $allKeys, playPause: $playPause)
+                    StateNavigation(evaluator: self.evaluator, slideOpen: $slideOpen, selectedKey: $selectedKey, playPause: $playPause)
                     HStack {
                         Spacer()
                         Text("\(currentTime)")
@@ -538,120 +537,6 @@ struct SubStateController: View {
 
     }
     
-}
-
-struct StateNavigation: View {
-    @ObservedObject var logEntries = LogEntries()
-    @Binding var navigationState: Int
-    @Binding var slideOpen: Bool
-    @Binding var selectedKey: Int
-    @Binding var allKeys: [Any]
-    @Binding var playPause: Bool
-    let buttonSize: CGFloat = 25
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-
-            HStack(alignment: .top) {
-                Button(action: {
-                    navigationState = 0
-                }) {
-                    NavBridge(parentSize: 12)
-                        .foregroundColor(.gray)
-                        .frame(width: buttonSize, height: buttonSize)
-                }
-                .buttonStyle(SquareButtonStyle())
-                Button(action: {
-                    navigationState = 1
-                }) {
-                    NavCorridor(parentSize: 8)
-                        .foregroundColor(.gray)
-                        .frame(width: buttonSize, height: buttonSize)
-                }
-                .buttonStyle(SquareButtonStyle())
-                VStack {
-                    Button(action: {
-                        navigationState = 2
-                    }) {
-                        NavLog(parentSize: 12)
-                            .foregroundColor(.gray)
-                            .frame(width: buttonSize, height: buttonSize)
-                    }
-                    .buttonStyle(SquareButtonStyle())
-                    Text("\(logEntries.displayItems().count)")
-                        .font(.custom("DIN Condensed Bold", size: 12))
-                        .foregroundColor(Color.gray)
-                }
-
-                Spacer()
-                Button(action: {
-                    if slideOpen {
-                        slideOpen = false
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            selectedKey -= 1
-                            if selectedKey < 0 {
-                                selectedKey = 0
-                            }
-                        }
-                    } else {
-                        slideOpen = false
-                        selectedKey -= 1
-                        allKeys.shuffle()
-                        if selectedKey < 0 {
-                            selectedKey = 0
-                        }
-                    }
-                }) {
-                    ArrowLeft(parentSize: 6)
-                        .foregroundColor(.gray)
-                        .frame(width: buttonSize, height: buttonSize)
-                }
-                .buttonStyle(SquareButtonStyle())
-                Button(action: {
-                    playPause.toggle()
-                }) {
-                    if playPause {
-                        ArrowPause(parentSize: 8)
-                            .foregroundColor(.gray)
-                            .frame(width: buttonSize, height: buttonSize)
-                    } else {
-                        ArrowPlay(parentSize: 8)
-                            .foregroundColor(.gray)
-                            .frame(width: buttonSize, height: buttonSize)
-                    }
-
-                }
-                .buttonStyle(SquareButtonStyle())
-                Button(action: {
-                    if slideOpen {
-                        slideOpen = false
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            selectedKey += 1
-                            if selectedKey > 11 {
-                                selectedKey = 11
-                            }
-                        }
-                    } else {
-                        slideOpen = false
-                        selectedKey += 1
-                        allKeys.shuffle()
-                        if selectedKey > 11 {
-                            selectedKey = 11
-                        }
-                    }
-                }) {
-                    ArrowRight(parentSize: 6)
-                        .foregroundColor(.gray)
-                        .frame(width: buttonSize, height: buttonSize)
-                }
-                .buttonStyle(SquareButtonStyle())
-                Spacer()
-                    .frame(width: 20)
-            }
-        }
-        .offset(x: 5)
-        
-    }
 }
 
 struct CorridorNavigation: View {

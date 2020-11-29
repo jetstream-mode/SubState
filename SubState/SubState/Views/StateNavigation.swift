@@ -7,22 +7,7 @@
 
 import Poet
 import SwiftUI
-/*
- case navSelectTracks
- case navAddLog
- case navListLog
- 
- */
 
-/*
-protocol Evaluating_Nav: Evaluating where Action: EvaluatorAction_Nav { }
-
-protocol EvaluatorAction_Nav: EvaluatorAction {
-    static func navSelectTracks() -> Self
-    static func navAddLog() -> Self
-    static func navListLog() -> Self
-}
- */
 extension SubState {
     struct StateNavigation<E: Evaluator>: View {
         
@@ -40,8 +25,6 @@ extension SubState {
 
                 HStack(alignment: .top) {
                     Button(action: {
-                        // find evaluator
-                        //navigationState = 0
                         evaluator.listTracks()
                     }) {
                         NavBridge(parentSize: 12)
@@ -50,7 +33,6 @@ extension SubState {
                     }
                     .buttonStyle(SquareButtonStyle())
                     Button(action: {
-                        //navigationState = 1
                         evaluator.addLog()
                     }) {
                         NavCorridor(parentSize: 8)
@@ -60,7 +42,6 @@ extension SubState {
                     .buttonStyle(SquareButtonStyle())
                     VStack {
                         Button(action: {
-                            //navigationState = 2
                             evaluator.listLog()
                         }) {
                             NavLog(parentSize: 12)
