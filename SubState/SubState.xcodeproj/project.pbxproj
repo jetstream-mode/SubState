@@ -18,6 +18,7 @@
 		0872F5F3256F11E100AE80BD /* SubState-Evaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5F2256F11E100AE80BD /* SubState-Evaluator.swift */; };
 		0872F5F8256F11EB00AE80BD /* SubState-Translator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5F7256F11EB00AE80BD /* SubState-Translator.swift */; };
 		0872F60C25735F7C00AE80BD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F60B25735F7C00AE80BD /* ContentView.swift */; };
+		0872F617257368A300AE80BD /* StateNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F616257368A300AE80BD /* StateNavigation.swift */; };
 		D208CFE825152069000A0C28 /* UserCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = D208CFE725152069000A0C28 /* UserCache.swift */; };
 		D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBCA24FF0689002E3EEB /* SubStateApp.swift */; };
 		D280FBCD24FF0689002E3EEB /* SubState-Screen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBCC24FF0689002E3EEB /* SubState-Screen.swift */; };
@@ -80,6 +81,7 @@
 		0872F5F2256F11E100AE80BD /* SubState-Evaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubState-Evaluator.swift"; sourceTree = "<group>"; };
 		0872F5F7256F11EB00AE80BD /* SubState-Translator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubState-Translator.swift"; sourceTree = "<group>"; };
 		0872F60B25735F7C00AE80BD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		0872F616257368A300AE80BD /* StateNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateNavigation.swift; sourceTree = "<group>"; };
 		D208CFE725152069000A0C28 /* UserCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCache.swift; sourceTree = "<group>"; };
 		D280FBC724FF0689002E3EEB /* SubState.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubState.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D280FBCA24FF0689002E3EEB /* SubStateApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubStateApp.swift; sourceTree = "<group>"; };
@@ -162,6 +164,7 @@
 		0872F5E0256F0F1B00AE80BD /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				0872F616257368A300AE80BD /* StateNavigation.swift */,
 				D280FBF724FF0735002E3EEB /* CorridorView.swift */,
 				0872F5F2256F11E100AE80BD /* SubState-Evaluator.swift */,
 				0872F5F7256F11EB00AE80BD /* SubState-Translator.swift */,
@@ -478,6 +481,7 @@
 				0872F5D2256F0D9B00AE80BD /* FilteringList.swift in Sources */,
 				0872F5C4256F0D6D00AE80BD /* EvaluatorElement.swift in Sources */,
 				0872F5D3256F0D9B00AE80BD /* Hideable.swift in Sources */,
+				0872F617257368A300AE80BD /* StateNavigation.swift in Sources */,
 				0872F5F8256F11EB00AE80BD /* SubState-Translator.swift in Sources */,
 				D280FBCD24FF0689002E3EEB /* SubState-Screen.swift in Sources */,
 				D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */,
