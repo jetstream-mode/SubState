@@ -30,7 +30,96 @@ struct CorridorView<Content: View>: View {
         }
     }
     
+}
+/*
+struct CorridorNavigation: View {
+    @State var evaluator: NavSelectionEvaluating
+    //@Binding var selectedKey: Int
+    @Binding var slideOpen: Bool
+    @Binding var allKeys: [Any]
+    let buttonSize: CGFloat = 15
+    
+    var body: some View {
+        
+        HStack {
+            Spacer()
+            Button(action: {
+                if slideOpen {
+                    slideOpen = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.evaluator.selectedKey -= 1
+                        if self.evaluator.selectedKey < 0 {
+                            self.evaluator.selectedKey = 0
+                        }
+                    }
+                } else {
+                    slideOpen = false
+                    evaluator.selectedKey -= 1
+                    allKeys.shuffle()
+                    if evaluator.selectedKey < 0 {
+                        evaluator.selectedKey = 0
+                    }
+                }
+            }) {
+                ArrowLeft(parentSize: 12)
+                    .foregroundColor(.gray)
+                    .frame(width: buttonSize, height: buttonSize)
+            }
+            .buttonStyle(SquareButtonStyle())
+            
+            Spacer()
+                .frame(width: 20)
+            
+            if evaluator.selectedKey == 0 {
+                KeyOneRaw()
+                    .foregroundColor(.gray)
+                    .frame(width: buttonSize, height: buttonSize)
+                    .transition(.scale)
+            } else if evaluator.selectedKey == 1 {
+                KeyTwoRaw()
+                    .foregroundColor(.gray)
+                    .frame(width: buttonSize, height: buttonSize)
+                    .transition(.scale)
+            } else if evaluator.selectedKey == 2 {
+                KeyThreeRaw()
+                    .foregroundColor(.gray)
+                    .frame(width: buttonSize, height: buttonSize)
+                    .transition(.scale)
+            }
+
+            Spacer()
+                .frame(width: 30)
+            
+            Button(action: {
+                if slideOpen {
+                    slideOpen = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.evaluator.selectedKey += 1
+                        if self.evaluator.selectedKey > 11 {
+                            self.evaluator.selectedKey = 11
+                        }
+                    }
+                } else {
+                    slideOpen = false
+                    evaluator.selectedKey += 1
+                    allKeys.shuffle()
+                    if evaluator.selectedKey > 11 {
+                        evaluator.selectedKey = 11
+                    }
+                }
+            }) {
+                ArrowRight(parentSize: 12)
+                    .foregroundColor(.gray)
+                    .frame(width: buttonSize, height: buttonSize)
+            }
+            .buttonStyle(SquareButtonStyle())
+            
+            Spacer()
+        }
+        .animation(.default)
+    }
     
 }
+ */
 
 

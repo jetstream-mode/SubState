@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0835C92D25770FB500FF23FC /* SubStateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0835C92C25770FB500FF23FC /* SubStateController.swift */; };
+		0835C935257711E700FF23FC /* OldKeyGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0835C934257711E700FF23FC /* OldKeyGrid.swift */; };
+		085D233E257596B3004F2E5F /* TrackScrollList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 085D233D257596B3004F2E5F /* TrackScrollList.swift */; };
+		085D23462575989C004F2E5F /* Arrows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 085D23452575989C004F2E5F /* Arrows.swift */; };
+		085D234B257598DF004F2E5F /* NavViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 085D234A257598DF004F2E5F /* NavViews.swift */; };
 		0872F5C4256F0D6D00AE80BD /* EvaluatorElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5C1256F0D6C00AE80BD /* EvaluatorElement.swift */; };
 		0872F5C5256F0D6D00AE80BD /* EvaluatorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5C2256F0D6D00AE80BD /* EvaluatorState.swift */; };
 		0872F5C6256F0D6D00AE80BD /* Passable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5C3256F0D6D00AE80BD /* Passable.swift */; };
@@ -19,6 +24,8 @@
 		0872F5F8256F11EB00AE80BD /* SubState-Translator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5F7256F11EB00AE80BD /* SubState-Translator.swift */; };
 		0872F60C25735F7C00AE80BD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F60B25735F7C00AE80BD /* ContentView.swift */; };
 		0872F617257368A300AE80BD /* StateNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F616257368A300AE80BD /* StateNavigation.swift */; };
+		0888C2AD257563F600EFCB19 /* NavSelectionEvaluating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0888C2AC257563F600EFCB19 /* NavSelectionEvaluating.swift */; };
+		08C933642587D2B7008375FB /* SubState-AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C933632587D2B7008375FB /* SubState-AppModel.swift */; };
 		D208CFE825152069000A0C28 /* UserCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = D208CFE725152069000A0C28 /* UserCache.swift */; };
 		D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBCA24FF0689002E3EEB /* SubStateApp.swift */; };
 		D280FBCD24FF0689002E3EEB /* SubState-Screen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBCC24FF0689002E3EEB /* SubState-Screen.swift */; };
@@ -70,6 +77,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0835C92C25770FB500FF23FC /* SubStateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubStateController.swift; sourceTree = "<group>"; };
+		0835C934257711E700FF23FC /* OldKeyGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldKeyGrid.swift; sourceTree = "<group>"; };
+		085D233D257596B3004F2E5F /* TrackScrollList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackScrollList.swift; sourceTree = "<group>"; };
+		085D23452575989C004F2E5F /* Arrows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Arrows.swift; sourceTree = "<group>"; };
+		085D234A257598DF004F2E5F /* NavViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavViews.swift; sourceTree = "<group>"; };
 		0872F5C1256F0D6C00AE80BD /* EvaluatorElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EvaluatorElement.swift; sourceTree = "<group>"; };
 		0872F5C2256F0D6D00AE80BD /* EvaluatorState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EvaluatorState.swift; sourceTree = "<group>"; };
 		0872F5C3256F0D6D00AE80BD /* Passable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Passable.swift; sourceTree = "<group>"; };
@@ -82,6 +94,8 @@
 		0872F5F7256F11EB00AE80BD /* SubState-Translator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubState-Translator.swift"; sourceTree = "<group>"; };
 		0872F60B25735F7C00AE80BD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		0872F616257368A300AE80BD /* StateNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateNavigation.swift; sourceTree = "<group>"; };
+		0888C2AC257563F600EFCB19 /* NavSelectionEvaluating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavSelectionEvaluating.swift; sourceTree = "<group>"; };
+		08C933632587D2B7008375FB /* SubState-AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubState-AppModel.swift"; sourceTree = "<group>"; };
 		D208CFE725152069000A0C28 /* UserCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCache.swift; sourceTree = "<group>"; };
 		D280FBC724FF0689002E3EEB /* SubState.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubState.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D280FBCA24FF0689002E3EEB /* SubStateApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubStateApp.swift; sourceTree = "<group>"; };
@@ -146,6 +160,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0835C9392577120500FF23FC /* unused */ = {
+			isa = PBXGroup;
+			children = (
+				0835C934257711E700FF23FC /* OldKeyGrid.swift */,
+			);
+			path = unused;
+			sourceTree = "<group>";
+		};
 		0872F5C0256F0D4A00AE80BD /* poet */ = {
 			isa = PBXGroup;
 			children = (
@@ -154,6 +176,7 @@
 				0872F5CD256F0D9B00AE80BD /* FilteringList.swift */,
 				0872F5CE256F0D9B00AE80BD /* Hideable.swift */,
 				0872F5CB256F0D9B00AE80BD /* TextFieldEvaluating.swift */,
+				0888C2AC257563F600EFCB19 /* NavSelectionEvaluating.swift */,
 				0872F5C1256F0D6C00AE80BD /* EvaluatorElement.swift */,
 				0872F5C2256F0D6D00AE80BD /* EvaluatorState.swift */,
 				0872F5C3256F0D6D00AE80BD /* Passable.swift */,
@@ -164,11 +187,15 @@
 		0872F5E0256F0F1B00AE80BD /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				0835C9392577120500FF23FC /* unused */,
+				0835C92C25770FB500FF23FC /* SubStateController.swift */,
+				085D233D257596B3004F2E5F /* TrackScrollList.swift */,
 				0872F616257368A300AE80BD /* StateNavigation.swift */,
 				D280FBF724FF0735002E3EEB /* CorridorView.swift */,
 				0872F5F2256F11E100AE80BD /* SubState-Evaluator.swift */,
 				0872F5F7256F11EB00AE80BD /* SubState-Translator.swift */,
 				D280FBCC24FF0689002E3EEB /* SubState-Screen.swift */,
+				08C933632587D2B7008375FB /* SubState-AppModel.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -317,6 +344,8 @@
 				D280FBFB24FF08C2002E3EEB /* MiscShapes.swift */,
 				D280FBF524FF0723002E3EEB /* KeyShapes.swift */,
 				D2F63885251D33D4000A2828 /* ShapeView.swift */,
+				085D23452575989C004F2E5F /* Arrows.swift */,
+				085D234A257598DF004F2E5F /* NavViews.swift */,
 			);
 			path = Shapes;
 			sourceTree = "<group>";
@@ -464,6 +493,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				085D234B257598DF004F2E5F /* NavViews.swift in Sources */,
+				0888C2AD257563F600EFCB19 /* NavSelectionEvaluating.swift in Sources */,
 				D280FBF824FF0735002E3EEB /* CorridorView.swift in Sources */,
 				0872F5CF256F0D9B00AE80BD /* ButtonEvaluating.swift in Sources */,
 				0872F60C25735F7C00AE80BD /* ContentView.swift in Sources */,
@@ -476,9 +507,13 @@
 				D208CFE825152069000A0C28 /* UserCache.swift in Sources */,
 				0872F5D0256F0D9B00AE80BD /* TextFieldEvaluating.swift in Sources */,
 				D280FBF624FF0723002E3EEB /* KeyShapes.swift in Sources */,
+				0835C92D25770FB500FF23FC /* SubStateController.swift in Sources */,
 				D2F63886251D33D4000A2828 /* ShapeView.swift in Sources */,
 				D280FC932508376A002E3EEB /* SubStatePlayer.swift in Sources */,
+				0835C935257711E700FF23FC /* OldKeyGrid.swift in Sources */,
+				085D233E257596B3004F2E5F /* TrackScrollList.swift in Sources */,
 				0872F5D2256F0D9B00AE80BD /* FilteringList.swift in Sources */,
+				085D23462575989C004F2E5F /* Arrows.swift in Sources */,
 				0872F5C4256F0D6D00AE80BD /* EvaluatorElement.swift in Sources */,
 				0872F5D3256F0D9B00AE80BD /* Hideable.swift in Sources */,
 				0872F617257368A300AE80BD /* StateNavigation.swift in Sources */,
@@ -486,6 +521,7 @@
 				D280FBCD24FF0689002E3EEB /* SubState-Screen.swift in Sources */,
 				D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */,
 				D280FC6E2502E9FE002E3EEB /* Bundle-Decodable.swift in Sources */,
+				08C933642587D2B7008375FB /* SubState-AppModel.swift in Sources */,
 				D2E9EBF3250A9A9500AEBF89 /* NormalizeSound.swift in Sources */,
 				D280FC702502EA7E002E3EEB /* Tracks.swift in Sources */,
 				0872F5D1256F0D9B00AE80BD /* EvaluatingTextField.swift in Sources */,

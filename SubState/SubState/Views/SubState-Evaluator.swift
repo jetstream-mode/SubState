@@ -13,7 +13,7 @@ struct SubState {}
 
 extension SubState {
     
-    class Evaluator {
+    class Evaluator: ObservableObject {
         
         // Translator
         lazy var translator: Translator = Translator($state)
@@ -23,15 +23,18 @@ extension SubState {
         
         // Init data
         //let users: [User]?
+        //access vars across steps
+        var selectedKey: Int = 0
         
         // Elements
         enum Element: EvaluatorElement {
+            case navItem
             case trackList
         }
 
         
         init() {
-            //users = Bundle.main.decode([User].self, from: "users.json")
+            //
         }
     }
 }
@@ -46,18 +49,21 @@ extension SubState.Evaluator {
     }
     
     struct ListTracksState {
+        let navId: Int
         var pageTitle: String
         //maybe
         var tracks: [Tracks]
     }
     
     struct AddLogState {
+        let navId: Int
         var pageTitle: String
         //maybe
         var tracks: [Tracks]
     }
     
     struct ListLogState {
+        let navId: Int
         var pageTitle: String
     }
     
@@ -69,20 +75,33 @@ extension SubState.Evaluator {
     
     func listTracks() {
         state = .listTracks(
-            ListTracksState(pageTitle: "list tracks", tracks: [])
+            ListTracksState(navId: 0, pageTitle: "list tracks", tracks: [])
         )
     }
     
     func addLog() {
         state = .addLog(
-            AddLogState(pageTitle: "add log", tracks: [])
+            AddLogState(navId: 1, pageTitle: "add log", tracks: [])
         )
     }
     
     func listLog() {
         state = .listLog(
-            ListLogState(pageTitle: "list log")
+            ListLogState(navId: 2, pageTitle: "list log")
         )
+    }
+}
+
+extension SubState.Evaluator: NavSelectionEvaluating {
+    func navItemSelected(_ navItem: NavItem) {
+        switch navItem {
+        case .list:
+            listTracks()
+        case .addLog:
+            addLog()
+        case .listLog:
+            listLog()
+        }
     }
 }
 

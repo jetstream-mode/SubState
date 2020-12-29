@@ -38,6 +38,8 @@ extension SubState {
         
         @State var playerTime: TimeInterval = UserDefaults.standard.double(forKey: "atsatime")
         
+        @ObservedObject var appModel = SubStateAppModel(slideOpen: false, playPause: UserDefaults.standard.bool(forKey: "playpause"))
+        
         init() {
             evaluator = Evaluator()
             translator = evaluator.translator
@@ -48,7 +50,7 @@ extension SubState {
             ZStack {
                 Color.offWhite
 
-                if navigationState == 1 && slideOpen {
+                if translator.navId == 1 && slideOpen {
 
                     if selectedKey == 1 {
                         EmitterView(
@@ -62,9 +64,6 @@ extension SubState {
                             alphaSpeed: 10,
                             angle: Angle(degrees: 90),
                             angleRange: Angle(degrees: 0),
-                            //rotation: Angle(degrees: Double(audioPulse)),
-                            //rotationRange: Angle(degrees: Double(audioPulse)),
-                            //rotationSpeed: Angle(degrees: Double(audioPulse)),
                             scale: CGFloat(audioPulse) * 0.3,
                             scaleRange: CGFloat(audioPulse) * 0.3,
                             scaleSpeed: 0.4,
@@ -97,14 +96,14 @@ extension SubState {
                 VStack(alignment: .leading) {
                     //state 0
                     if translator.navId == 0 {
-                        TrackScrollList(currentTime: $currentTime, soundSamples: $soundSamples, navigationState: $navigationState, tracks: tracks, selectedKey: $selectedKey)
+                        TrackScrollList(evaluator: self.evaluator, currentTime: $currentTime, soundSamples: $soundSamples, navigationState: $navigationState, tracks: tracks)
                             //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
                             .transition(AnyTransition.identity)
                     } else if translator.navId == 1 {
                         //state 1
                         CorridorView(currentIndex: $selectedKey) {
                             ForEach(0..<12) { value in
-                                SlidingEntry(doorIndex: value, tracks: tracks, soundSamples: $soundSamples, currentTime: $currentTime, slideOpen: $slideOpen, selectedKey: $selectedKey, keyDragId: $keyDragId)
+                                SlidingEntry(evaluator: self.evaluator, doorIndex: value, tracks: tracks, soundSamples: $soundSamples, currentTime: $currentTime, slideOpen: $slideOpen, keyDragId: $keyDragId)
                             }
                         }
 
@@ -113,8 +112,12 @@ extension SubState {
                         LogList()
                     }
 
-                    SubStateController(selectedKey: $selectedKey, slideOpen: $slideOpen, allKeys: $allKeys)
-                    StateNavigation(evaluator: self.evaluator, slideOpen: $slideOpen, selectedKey: $selectedKey, playPause: $playPause)
+                    SubStateController(evaluator: self.evaluator, slideOpen: $slideOpen, allKeys: $allKeys)
+                    
+                    //setup a model for StateNavigation that contains evaluator reference, slideOpen, and playPause
+                    //StateNavigation(evaluator: self.evaluator, slideOpen: $slideOpen, playPause: $playPause)
+                    StateNavigation(evaluator: self.evaluator, model: appModel)
+
                     HStack {
                         Spacer()
                         Text("\(currentTime)")
@@ -173,7 +176,6 @@ extension SubState {
                     subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
                     
                 }
-                
                 
             }
             .edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
@@ -268,8 +270,6 @@ struct LogCellButtonStyle: ButtonStyle {
     let height: CGFloat = 60
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
-            //.frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
-            //.foregroundColor(Color.white)
             .background(configuration.isPressed ? Color.white : Color.white)
     }
 }
@@ -325,59 +325,6 @@ struct LogCellView: View {
     }
 }
 
-
-
-struct TrackScrollList: View, NormalizeSound {
-    @Binding var currentTime: String
-    @Binding var soundSamples: [Float]
-    @Binding var navigationState: Int
-    var tracks: [Tracks]
-    @Binding var selectedKey: Int
-    var currentYOffset: CGFloat {
-        return -((CGFloat(selectedKey) * 50) - 200)
-    }
-        
-    var body: some View {
-        
-        GeometryReader { geometry in
-            ZStack(alignment: .topLeading) {
-                Rectangle()
-                    .fill(LinearGradient(gradient: Gradient(colors: [.gray, .offWhite]), startPoint: .top, endPoint: .bottomTrailing))
-                    .frame(width: 50, height: geometry.size.height)
-                    .offset(x: 50)
-                
-                HStack(alignment: .top, spacing: 1) {
-                    ForEach(soundSamples, id: \.self) { level in
-                        SoundBarView(soundValue: self.normalizeSoundLevel(level: level), barColor: .blue, barOpacity: 0.5, barWidth: 1.0)
-                    }
-                }
-                .offset(x: 50, y: 0)
-                
-                                
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(tracks) { track in
-                        Button(action: {
-                            if let trackButtonHit = Int(track.id) {
-                                selectedKey = trackButtonHit
-                            }
-                        }) {
-                            TrackCell(selectedKey: $selectedKey, currentTime: $currentTime, track: track)
-                                .id(Int(track.id))
-                                //.id(UUID())
-                                .transition(.slide)
-                        }
-
-                    }
-                    Spacer()
-                }
-                .offset(y: currentYOffset)
-                
-            }
-            .animation(.default)
-        }
-    }
-}
-
 struct SoundBarView: View {
     var soundValue: CGFloat
     let barColor: Color
@@ -392,518 +339,6 @@ struct SoundBarView: View {
                 .opacity(barOpacity)
         }
     }
-}
-
-struct TrackCell: View {
-    @Binding var selectedKey: Int
-    @Binding var currentTime: String
-    var track: Tracks
-    let keyShapeSize: CGFloat = 25
-    
-    var trackId: Int {
-        return Int(track.id) ?? 0
-    }
-    
-    var trackOpacity: Double {
-        if trackId == selectedKey {
-            return 0.8
-        } else {
-            return 0.2
-        }
-    }
-    
-    var body: some View {
-        
-        HStack(alignment: .bottom) {
-            Image(track.vinylFile)
-                .resizable()
-                .opacity(trackOpacity)
-                .frame(width: 50, height: 50)
-                .offset(x: 0)
-            Spacer()
-                .frame(width: 0)
-            switch trackId {
-            case 0:
-                KeyOneRaw()
-                    .foregroundColor(.white)
-                    .frame(width: keyShapeSize/2, height: keyShapeSize/2)
-                    .alignmentGuide(.bottom) { d in
-                        d[.bottom] + 20
-                    }
-                    .opacity(trackOpacity)
-                    .offset(x: 15)
-            case 1:
-                KeyTwoRaw()
-                    .foregroundColor(.white)
-                    .frame(width: keyShapeSize/2, height: keyShapeSize/2)
-                    .alignmentGuide(.bottom) { d in
-                        d[.bottom] + 20
-                    }
-                    .opacity(trackOpacity)
-                    .offset(x: 15)
-            case 2:
-                KeyThreeRaw()
-                    .foregroundColor(.white)
-                    .frame(width: keyShapeSize/2, height: keyShapeSize/2)
-                    .alignmentGuide(.bottom) { d in
-                        d[.bottom] + 20
-                    }
-                    .opacity(trackOpacity)
-                    .offset(x: 15)
-            default:
-                KeyThreeRaw()
-                    .foregroundColor(.white)
-                    .frame(width: keyShapeSize/2, height: keyShapeSize/2)
-                    .alignmentGuide(.bottom) { d in
-                        d[.bottom] + 20
-                    }
-                    .opacity(trackOpacity)
-                    .offset(x: 15)
-                
-            }
-
-            Spacer()
-                .frame(width: 50)
-            VStack(alignment: .leading) {
-                Text("\(track.song)")
-                    .font(.custom("DIN Condensed Bold", size: 16))
-                    .foregroundColor(Color.gray)
-                HStack {
-                    Text("\(track.artist)")
-                        .font(.custom("DIN Condensed Bold", size: 12))
-                        .foregroundColor(Color.gray)
-                    if trackId == selectedKey {
-                        Text("\(currentTime)")
-                            .font(.custom("DIN Condensed Bold", size: 12))
-                            .foregroundColor(Color.gray)
-                    }
-                }
-
-            }
-            .opacity(trackOpacity)
-        }
-        .frame(height: 50)
-    }
-}
-
-struct SubStateController: View {
-    @Binding var selectedKey: Int
-    @Binding var slideOpen: Bool
-    @Binding var allKeys: [Any]
-    
-    let buttonSize: CGFloat = 25
-    
-    var body: some View {
-        
-        HStack(alignment: .bottom) {
-            Image("subStateLogo")
-//                .alignmentGuide(.bottom) { d in
-//                    d[.bottom] - 0
-//                }
-
-            
-            if selectedKey == 0 {
-                KeyOneRaw()
-                    .foregroundColor(.gray)
-                    .frame(width: buttonSize/2, height: buttonSize/2)
-                    .alignmentGuide(.bottom) { d in
-                        d[.bottom] + 20
-                    }
-                    .offset(x: 10)
-                    .transition(.scale)
-            } else if selectedKey == 1 {
-                KeyTwoRaw()
-                    .foregroundColor(.gray)
-                    .frame(width: buttonSize/2, height: buttonSize/2)
-                    .alignmentGuide(.bottom) { d in
-                        d[.bottom] + 20
-                    }
-                    .offset(x: 10)
-                    .transition(.scale)
-            } else if selectedKey == 2 {
-                KeyThreeRaw()
-                    .foregroundColor(.gray)
-                    .frame(width: buttonSize/2, height: buttonSize/2)
-                    .alignmentGuide(.bottom) { d in
-                        d[.bottom] + 20
-                    }
-                    .offset(x: 10)
-                    .transition(.scale)
-            }
-
-        }
-        .offset(x: 5)
-        .animation(.default)
-
-    }
-    
-}
-
-struct CorridorNavigation: View {
-    @Binding var selectedKey: Int
-    @Binding var slideOpen: Bool
-    @Binding var allKeys: [Any]
-    let buttonSize: CGFloat = 15
-    
-    var body: some View {
-        
-        HStack {
-            Spacer()
-            Button(action: {
-                if slideOpen {
-                    slideOpen = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        selectedKey -= 1
-                        if selectedKey < 0 {
-                            selectedKey = 0
-                        }
-                    }
-                } else {
-                    slideOpen = false
-                    selectedKey -= 1
-                    allKeys.shuffle()
-                    if selectedKey < 0 {
-                        selectedKey = 0
-                    }
-                }
-            }) {
-                ArrowLeft(parentSize: 12)
-                    .foregroundColor(.gray)
-                    .frame(width: buttonSize, height: buttonSize)
-            }
-            .buttonStyle(SquareButtonStyle())
-            
-            Spacer()
-                .frame(width: 20)
-            
-            if selectedKey == 0 {
-                KeyOneRaw()
-                    .foregroundColor(.gray)
-                    .frame(width: buttonSize, height: buttonSize)
-                    .transition(.scale)
-            } else if selectedKey == 1 {
-                KeyTwoRaw()
-                    .foregroundColor(.gray)
-                    .frame(width: buttonSize, height: buttonSize)
-                    .transition(.scale)
-            } else if selectedKey == 2 {
-                KeyThreeRaw()
-                    .foregroundColor(.gray)
-                    .frame(width: buttonSize, height: buttonSize)
-                    .transition(.scale)
-            }
-
-            Spacer()
-                .frame(width: 30)
-            
-            Button(action: {
-                if slideOpen {
-                    slideOpen = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        selectedKey += 1
-                        if selectedKey > 11 {
-                            selectedKey = 11
-                        }
-                    }
-                } else {
-                    slideOpen = false
-                    selectedKey += 1
-                    allKeys.shuffle()
-                    if selectedKey > 11 {
-                        selectedKey = 11
-                    }
-                }
-            }) {
-                ArrowRight(parentSize: 12)
-                    .foregroundColor(.gray)
-                    .frame(width: buttonSize, height: buttonSize)
-            }
-            .buttonStyle(SquareButtonStyle())
-            
-            Spacer()
-        }
-        .animation(.default)
-    }
-    
-}
-
-
-struct keyGrid: View {
-    let keySize: CGFloat = 10
-    let keyBGSize: CGFloat = 50
-    
-    var gridItemLayout = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
-    @Binding var navigationState: Int
-    @Binding var selectedKey: Int
-    @Binding var slideOpen: Bool
-    
-    @Binding var allKeys: [Any]
-    
-    @Binding var keyDragId: Int
-    
-    @State var rotation: Angle = Angle(degrees: 0)
-    
-    var body: some View {
-        
-        LazyVGrid(columns: gridItemLayout, spacing: 45) {
-            
-            ForEach(0..<allKeys.count) { index in
-                self.buildKeyView(keys: self.allKeys, index: index)
-            }
-
-        }
-        //maybe a bug
-        //.animation(.default)}
-
-    }
-    
-    func buildKeyView(keys: [Any], index: Int) -> AnyView {
-        switch keys[index].self {
-        case is KeyOne.Type:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeyOne(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-                .rotationEffect(rotation)
-                .onAppear {
-                    let baseAnimation = Animation.easeInOut(duration: 1)
-                    let repeated = baseAnimation.repeatForever(autoreverses: true)
-                    
-                    return withAnimation(repeated) {
-                        self.rotation = Angle(degrees: 180)
-
-                    }
-                }
-                .onDrag {
-                    
-                    keyDragId = 0
-                    
-                    return NSItemProvider()
-                }
-                
-                /*
-                .offset(offset1)
-                .gesture(
-                    DragGesture()
-                        .onChanged { gesture in
-                            offset1 = gesture.translation
-                        }
-                        .onEnded { _ in
-                            offset1 = CGSize.zero
-                            
-                        }
-                )
- */
-            )
-        case is KeyTwo.Type:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeyTwo(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-                .onDrag {
-                    
-                    keyDragId = 1
-                    return NSItemProvider()
-                }
-            )
-        case is KeyThree.Type:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeyThree(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-                .onDrag {
-                    
-                    keyDragId = 2
-                    return NSItemProvider()
-                }
-            )
-        case is KeyFour.Type:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeyFour(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-                .onDrag {
-                    
-                    keyDragId = 3
-                    return NSItemProvider()
-                }
-            )
-        case is KeyFive.Type:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeyFive(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-                .onDrag {
-                    
-                    keyDragId = 4
-                    return NSItemProvider()
-                }
-            )
-        case is KeySix.Type:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeySix(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-                .onDrag {
-                    
-                    keyDragId = 5
-                    return NSItemProvider()
-                }
-            )
-        case is KeySeven.Type:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeySeven(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-                .onDrag {
-                    
-                    keyDragId = 6
-                    return NSItemProvider()
-                }
-            )
-        case is KeyEight.Type:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeyEight(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-                .onDrag {
-                    
-                    keyDragId = 7
-                    return NSItemProvider()
-                }
-            )
-        case is KeyNine.Type:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeyNine(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-                .onDrag {
-                    
-                    keyDragId = 8
-                    return NSItemProvider()
-                }
-            )
-        case is KeyTen.Type:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeyTen(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-                .onDrag {
-                    
-                    keyDragId = 9
-                    return NSItemProvider()
-                }
-            )
-        case is KeyEleven.Type:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeyEleven(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-                .onDrag {
-                    
-                    keyDragId = 10
-                    return NSItemProvider()
-                }
-            )
-        case is KeyTwelve.Type:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeyTwelve(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-                .onDrag {
-                    
-                    keyDragId = 11
-                    return NSItemProvider()
-                }
-
-            )
-        default:
-            return AnyView(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7)
-                        .foregroundColor(.clear)
-                        .keyBGShapeStyle(parentSize: keyBGSize)
-                    KeyOne(parentSize: keySize)
-                        .foregroundColor(.gray)
-                        .frame(width: keySize, height: keySize)
-                        .transition(.scale)
-                }
-            )
-        }
-    }
-
 }
 
 extension Color {
@@ -1018,12 +453,13 @@ struct SquareButtonStyle: ButtonStyle {
 }
 
 struct SlidingEntry: View {
+    @State var evaluator: NavSelectionEvaluating
     let doorIndex: Int
     var tracks: [Tracks]
     @Binding var soundSamples: [Float]
     @Binding var currentTime: String
     @Binding var slideOpen: Bool
-    @Binding var selectedKey: Int
+    //@Binding var selectedKey: Int
     @Binding var keyDragId: Int
     
     var body: some View {
@@ -1032,16 +468,16 @@ struct SlidingEntry: View {
             VStack(alignment: .trailing) {
                 ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
                     if slideOpen {
-                        BehindClosedDoor(track: tracks[selectedKey], slideOpen: $slideOpen)
+                        BehindClosedDoor(track: tracks[evaluator.selectedKey], slideOpen: $slideOpen)
                             .zIndex(1)
                     }
                     LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: tracks, soundSamples: $soundSamples)
-                        .offset(x: (slideOpen && selectedKey == doorIndex) ? -(geometry.size.width*0.60) : 0)
-                        .animation((slideOpen && selectedKey == doorIndex) ? Animation.easeIn(duration: 0.4) : Animation.easeOut(duration: 0.4))
+                        .offset(x: (slideOpen && evaluator.selectedKey == doorIndex) ? -(geometry.size.width*0.60) : 0)
+                        .animation((slideOpen && evaluator.selectedKey == doorIndex) ? Animation.easeIn(duration: 0.4) : Animation.easeOut(duration: 0.4))
                         .zIndex(2)
-                    RightKeyDoor(slideOpen: $slideOpen, keyDragId: $keyDragId, selectedKey: $selectedKey, soundSamples: $soundSamples)
-                        .offset(x: (slideOpen && selectedKey == doorIndex) ? geometry.size.width*0.35 : 0)
-                        .animation((slideOpen && selectedKey == doorIndex) ? Animation.easeIn(duration: 0.4) : Animation.easeOut(duration: 0.4))
+                    RightKeyDoor(evaluator: evaluator, slideOpen: $slideOpen, keyDragId: $keyDragId, soundSamples: $soundSamples)
+                        .offset(x: (slideOpen && evaluator.selectedKey == doorIndex) ? geometry.size.width*0.35 : 0)
+                        .animation((slideOpen && evaluator.selectedKey == doorIndex) ? Animation.easeIn(duration: 0.4) : Animation.easeOut(duration: 0.4))
                         .zIndex(3)
                 }
                 .gesture(
@@ -1049,12 +485,12 @@ struct SlidingEntry: View {
                         .onEnded {
                             if slideOpen == false {
                                 if $0.startLocation.x < $0.location.x {
-                                    if selectedKey > 0 {
-                                        selectedKey -= 1
+                                    if evaluator.selectedKey > 0 {
+                                        evaluator.selectedKey -= 1
                                     }
                                 } else if $0.startLocation.x > $0.location.x {
-                                    if selectedKey < 11 {
-                                        selectedKey += 1
+                                    if evaluator.selectedKey < 11 {
+                                        evaluator.selectedKey += 1
                                     }
                                 }
                             }
@@ -1327,29 +763,11 @@ struct LeftDisplayDoor: View, NormalizeSound {
     }
 }
 
-
-struct KeyDragDropDelegate: DropDelegate {
-    @Binding var keyDragId: Int
-    @Binding var slideOpen: Bool
-    @Binding var selectedKey: Int
-    
-    func performDrop(info: DropInfo) -> Bool {
-        if selectedKey == keyDragId {
-            slideOpen = true
-        } else {
-            slideOpen = false
-        }
-
-        return true
-    }
-}
-
-
-
 struct RightKeyDoor: View {
+    @State var evaluator: NavSelectionEvaluating
     @Binding var slideOpen: Bool
     @Binding var keyDragId: Int
-    @Binding var selectedKey: Int
+    //@Binding var selectedKey: Int
     @Binding var soundSamples: [Float]
     
     var body: some View {
@@ -1375,15 +793,9 @@ struct RightKeyDoor: View {
                     .offset(x: (geometry.size.width/2)-20, y: -175)
 
 
-                KeyDropPanel(selectedKey: $selectedKey, slideOpen: $slideOpen, soundSamples: $soundSamples)
+                KeyDropPanel(evaluator: evaluator, slideOpen: $slideOpen, soundSamples: $soundSamples)
                     .frame(width: 80, height: 80)
                     .offset(x: (geometry.size.width*0.70)-14, y: -50)
-                    /*
-                    .onDrop(
-                        of: [KeyDrag.keyDragIdentifier],
-                        delegate: KeyDragDropDelegate(keyDragId: $keyDragId, slideOpen: $slideOpen, selectedKey: $selectedKey)
-                    )
- */
 
             }
         }
@@ -1618,8 +1030,8 @@ struct UnlockHalfCircle: Shape {
 }
 
 struct KeyDropPanel: View, NormalizeSound {
-    
-    @Binding var selectedKey: Int
+    @State var evaluator: NavSelectionEvaluating
+    //@Binding var selectedKey: Int
     @Binding var slideOpen: Bool
     @Binding var soundSamples: [Float]
     @State private var endShapeAmount: CGFloat = 0
@@ -1633,24 +1045,7 @@ struct KeyDropPanel: View, NormalizeSound {
                     .foregroundColor(.gray)
                     .loweredShapeStyle()
 
-                if selectedKey == 0 && !slideOpen {
-                    /*
-                    ShapeView(bezier: UIBezierPath.keyOneBezier)
-                        .trim(from: 0, to: endShapeAmount)
-                        .stroke(Color.red, lineWidth: 4)
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                        .onAppear {
-                            withAnimation(Animation.easeInOut(duration: 1)) {
-                                self.endShapeAmount = 1
-                            }
-                        }
-                        .onDisappear {
-                            debugPrint("bye shape 0")
-                            self.endShapeAmount = 0
-                        }
- */
-                        
-
+                if evaluator.selectedKey == 0 && !slideOpen {
                     Image("metalA")
                         .frame(width: geometry.size.width/3, height: geometry.size.height/3)
                         .mask(KeyOneRaw())
@@ -1658,11 +1053,8 @@ struct KeyDropPanel: View, NormalizeSound {
                         .opacity(0.3)
                         .shadow(radius: 5)
                         .transition(.asymmetric(insertion: .softTransition, removal: .hardTransition))
-                        //.transition(AnyTransition.identity)
 
-
-
-                } else if selectedKey == 1 && !slideOpen {
+                } else if evaluator.selectedKey == 1 && !slideOpen {
                     Image("metalA")
                         .frame(width: geometry.size.width/3, height: geometry.size.height/3)
                         .mask(KeyTwoRaw())
@@ -1672,7 +1064,7 @@ struct KeyDropPanel: View, NormalizeSound {
                         .transition(.asymmetric(insertion: .softTransition, removal: .hardTransition))
                         //.transition(AnyTransition.identity)
  
-                } else if selectedKey == 2 && !slideOpen {
+                } else if evaluator.selectedKey == 2 && !slideOpen {
                     Image("metalA")
                         .frame(width: geometry.size.width/3, height: geometry.size.height/3)
                         .mask(KeyThreeRaw())
@@ -1705,7 +1097,6 @@ struct DoorIdPanel: View, NormalizeSound {
                 .loweredShapeStyle()
 
             Text("\(currentTime)")
-                //.font(.system(size: 50))
                 .font(.custom("DIN Condensed Bold", size: 20))
                 .foregroundColor(.offWhite)
                 .offset(y: 8)
@@ -1732,260 +1123,6 @@ struct SongInfoPanel: View {
         }
     }
 }
-struct DoorIdPlateRaw: Shape {
-    func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: 0, y: 0))
-            path.addLine(to: CGPoint(x: 0, y: rect.height))
-            path.addLine(to: CGPoint(x: rect.width, y: rect.height))
-            path.addLine(to: CGPoint(x: rect.width, y: 0))
-            path.closeSubpath()
-        }
-    }
-}
-
-struct KeyDropPlateRaw: Shape {
-    func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: 0, y: 0))
-            path.addLine(to: CGPoint(x: 0, y: rect.height))
-            path.addLine(to: CGPoint(x: rect.width, y: rect.height))
-            path.addLine(to: CGPoint(x: rect.width, y: 0))
-            path.closeSubpath()
-        }
-    }
-}
-
-struct RightBackPlateRaw: Shape {
-    func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: 3, y: 140))
-            path.addLine(to: CGPoint(x: 3, y: 182))
-            path.addLine(to: CGPoint(x: -77, y: (rect.height/2)+22))
-            path.addLine(to: CGPoint(x: -77, y: (rect.height/2)+79))
-            path.addLine(to: CGPoint(x: 3, y: rect.height))
-            path.addLine(to: CGPoint(x: rect.width-25, y: rect.height))
-            path.addLine(to: CGPoint(x: rect.width-5, y: rect.height-25))
-            path.addLine(to: CGPoint(x: rect.width-5, y: 165))
-            path.addLine(to: CGPoint(x: rect.width-25, y: 140))
-            path.closeSubpath()
-        }
-    }
-}
-
-struct LeftPlateStripe: Shape {
-    func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: 0, y: 0))
-            path.addLine(to: CGPoint(x: rect.width*0.70, y: 0))
-            path.addLine(to: CGPoint(x: rect.width*0.94, y: 17))
-            path.addLine(to: CGPoint(x: rect.width*0.98, y: 40))
-            path.addLine(to: CGPoint(x: rect.width*0.70, y: 4))
-            path.addLine(to: CGPoint(x: 12, y: 10))
-            path.closeSubpath()
-        }
-    }
-}
-
-struct RightPlateStripe: Shape {
-    func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: -9, y: 0))
-            path.addLine(to: CGPoint(x: rect.width/2, y: 22))
-            path.addLine(to: CGPoint(x: 0, y: 22))
-            path.closeSubpath()
-        }
-    }
-}
-
-struct ArrowLeft: View {
-    var parentSize: CGFloat
-    
-    var body: some View {
-        ZStack {
-            HStack(spacing: 0) {
-                ArrowRaw()
-                    .frame(width: parentSize, height: parentSize)
-                ArrowRaw()
-                    .frame(width: parentSize, height: parentSize)
-            }
-        }
-    }
-}
-
-struct ArrowRight: View {
-    var parentSize: CGFloat
-    
-    var body: some View {
-        ZStack {
-            HStack(spacing: 0) {
-                ArrowRaw()
-                    .scale(x: -1)
-                    .frame(width: parentSize, height: parentSize)
-                ArrowRaw()
-                    .scale(x: -1)
-                    .frame(width: parentSize, height: parentSize)
-            }
-
-        }
-    }
-}
-
-struct ArrowPlay: View {
-    var parentSize: CGFloat
-    
-    var body: some View {
-        ZStack {
-            ArrowRaw()
-                .scale(x: -1)
-                .frame(width: parentSize, height: parentSize)
-        }
-    }
-}
-
-struct ArrowPause: View {
-    var parentSize: CGFloat
-    
-    var body: some View {
-        ZStack {
-            PauseRaw()
-                .frame(width: parentSize, height: parentSize)
-                .offset(y: 3)
-        }
-    }
-}
-struct ArrowUp: View {
-    var parentSize: CGFloat
-    
-    var body: some View {
-        ZStack {
-            ArrowRaw()
-                .rotation(.degrees(90))
-                .frame(width: parentSize, height: parentSize)
-        }
-    }
-}
-
-struct ArrowRaw: Shape {
-    func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height/2)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: rect.height/2))
-            path.addLine(to: CGPoint(x: rect.size.width, y: rect.height + (rect.height/2)))
-            path.closeSubpath()
-        }
-    }
-}
-
-
-
-// bridge corriodr log
-
-struct NavBridge: View {
-    var parentSize: CGFloat
-    
-    var body: some View {
-        VStack {
-            Circle()
-                .frame(width: parentSize, height: parentSize)
-        }
-    }
-}
-
-struct NavCorridor: View {
-    var parentSize: CGFloat
-    
-    var body: some View {
-        HStack(spacing: 2) {
-            Rectangle()
-                .frame(width: parentSize, height: parentSize)
-            Rectangle()
-                .frame(width: parentSize, height: parentSize)
-            Rectangle()
-                .frame(width: parentSize, height: parentSize)
-        }
-    }
-}
-
-struct NavLog: View {
-    var parentSize: CGFloat
-    
-    var body: some View {
-        ZStack {
-            LogRaw()
-                .frame(width: parentSize, height: parentSize)
-                .offset(y: 8)
-        }
-    }
-}
-
-struct BridgeRaw: Shape {
-    func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height-18)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-18)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-21)))
-            path.addLine(to: CGPoint(x: rect.size.width, y: -(rect.height-21)))
-            path.closeSubpath()
-        }
-    }
-}
-
-struct CorridorRaw: Shape {
-    func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height/2)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: rect.height/2))
-            path.addLine(to: CGPoint(x: rect.size.width, y: rect.height + (rect.height/2)))
-            path.closeSubpath()
-        }
-    }
-}
-
-struct LogRaw: Shape {
-    func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-3)))
-            path.addLine(to: CGPoint(x: rect.size.width, y: -(rect.height-3)))
-            path.closeSubpath()
-            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height-6)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-6)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-9)))
-            path.addLine(to: CGPoint(x: rect.size.width, y: -(rect.height-9)))
-            path.closeSubpath()
-            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height-12)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-12)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-15)))
-            path.addLine(to: CGPoint(x: rect.size.width, y: -(rect.height-15)))
-            path.closeSubpath()
-            path.move(to: CGPoint(x: rect.size.width, y: -(rect.height-18)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-18)))
-            path.addLine(to: CGPoint(x: -(rect.width/2), y: -(rect.height-21)))
-            path.addLine(to: CGPoint(x: rect.size.width, y: -(rect.height-21)))
-            path.closeSubpath()
-        }
-    }
-}
-
-struct PauseRaw: Shape {
-    func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: (rect.size.width/2)-4, y: -(rect.height)))
-            path.addLine(to: CGPoint(x: (rect.size.width/2)-1, y: -(rect.height)))
-            path.addLine(to: CGPoint(x: (rect.size.width/2)-1, y: rect.height))
-            path.addLine(to: CGPoint(x: (rect.size.width/2)-4, y: rect.height))
-            path.closeSubpath()
-            path.move(to: CGPoint(x: (rect.size.width/2)+1, y: -(rect.height)))
-            path.addLine(to: CGPoint(x: (rect.size.width/2)+4, y: -(rect.height)))
-            path.addLine(to: CGPoint(x: (rect.size.width/2)+4, y: rect.height))
-            path.addLine(to: CGPoint(x: (rect.size.width/2)+1, y: rect.height))
-            path.closeSubpath()
-        }
-    }
-}
-
 
 #if canImport(UIKit)
 extension View {

@@ -18,6 +18,8 @@ extension SubState {
         typealias State = Evaluator.State
         
         // view models
+        
+        //var stateNavigationModel = StateNavigationModel(slideOpen: false, playPause: false)
         var navId = 0
         
         // State Sink
@@ -51,17 +53,14 @@ extension SubState.Translator {
     }
     
     func translateListTracks(_ state: Evaluator.ListTracksState) {
-        debugPrint("translate list tracks")
-        navId = 0
+        navId = state.navId
     }
     
     func translateAddLog(_ state: Evaluator.AddLogState) {
-        debugPrint("translate add log")
-        navId = 1
+        navId = state.navId
     }
     
     func translateListLog(_ state: Evaluator.ListLogState) {
-        debugPrint("list log state")
-        navId = 2
+        navId = state.navId
     }
 }
