@@ -9,13 +9,14 @@ import Foundation
 import SwiftUI
 
 struct SubStateController: View {
-    @State var evaluator: NavSelectionEvaluating
     
-    //@Binding var selectedKey: Int
-    @Binding var slideOpen: Bool
-    @Binding var allKeys: [Any]
-    
+    @StateObject var evaluator: Evaluator
+        
     let buttonSize: CGFloat = 25
+    
+    init(evaluator: Evaluator = .init()) {
+        _evaluator = StateObject(wrappedValue: evaluator)
+    }
     
     var body: some View {
         
@@ -57,4 +58,13 @@ struct SubStateController: View {
 
     }
     
+}
+
+struct SubStateController_Previews: PreviewProvider {
+    static var previews: some View {
+        let evaluator = Evaluator()
+        evaluator.selectedKey = 0
+        
+        return SubStateController(evaluator: evaluator)
+    }
 }

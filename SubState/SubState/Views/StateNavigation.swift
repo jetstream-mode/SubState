@@ -11,24 +11,21 @@ import SwiftUI
 
 struct StateNavigation: View {
     
-    @State var evaluator: NavSelectionEvaluating
-    //need an appModel here
-    //@ObservedObject var model = SubStateAppModel()
-    @State var model: SubStateAppModel
-    
-    @ObservedObject var logEntries = LogEntries()
-    //@Binding var navigationState: Int
-    //@Binding var slideOpen: Bool
-    //@Binding var selectedKey: Int
-    //@Binding var playPause: Bool
+    @StateObject var evaluator: Evaluator
+    @State var logDisplayItems: [LogEntryData] = []
+
     let buttonSize: CGFloat = 25
+    
+    init(evaluator: Evaluator = .init()) {
+        _evaluator = StateObject(wrappedValue: evaluator)
+    }
             
     var body: some View {
         VStack(alignment: .leading) {
 
             HStack(alignment: .top) {
                 Button(action: {
-                    evaluator.navItemSelected(.list)
+                    evaluator.navId = 0
                 }) {
                     NavBridge(parentSize: 12)
                         .foregroundColor(.gray)
@@ -36,7 +33,7 @@ struct StateNavigation: View {
                 }
                 .buttonStyle(SquareButtonStyle())
                 Button(action: {
-                    evaluator.navItemSelected(.addLog)
+                    evaluator.navId = 1
                 }) {
                     NavCorridor(parentSize: 8)
                         .foregroundColor(.gray)
@@ -45,22 +42,25 @@ struct StateNavigation: View {
                 .buttonStyle(SquareButtonStyle())
                 VStack {
                     Button(action: {
-                        self.evaluator.navItemSelected(.listLog)
+                        evaluator.navId = 2
                     }) {
                         NavLog(parentSize: 12)
                             .foregroundColor(.gray)
                             .frame(width: buttonSize, height: buttonSize)
                     }
                     .buttonStyle(SquareButtonStyle())
-                    Text("\(logEntries.displayItems().count)")
+                    Text("\(logDisplayItems.count)")
                         .font(.custom("DIN Condensed Bold", size: 12))
                         .foregroundColor(Color.gray)
+                }
+                .onAppear {
+                    logDisplayItems = evaluator.logEntries.displayItems()
                 }
 
                 Spacer()
                 Button(action: {
-                    if model.slideOpen {
-                        model.slideOpen = false
+                    if evaluator.slideOpen {
+                        evaluator.slideOpen = false
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             self.evaluator.selectedKey -= 1
                             if self.evaluator.selectedKey < 0 {
@@ -68,7 +68,7 @@ struct StateNavigation: View {
                             }
                         }
                     } else {
-                        model.slideOpen = false
+                        evaluator.slideOpen = false
                         evaluator.selectedKey -= 1
                         if evaluator.selectedKey < 0 {
                             evaluator.selectedKey = 0
@@ -81,9 +81,9 @@ struct StateNavigation: View {
                 }
                 .buttonStyle(SquareButtonStyle())
                 Button(action: {
-                    self.model.playPause.toggle()
+                    evaluator.playPause.toggle()
                 }) {
-                    if model.playPause {
+                    if evaluator.playPause {
                         ArrowPause(parentSize: 8)
                             .foregroundColor(.gray)
                             .frame(width: buttonSize, height: buttonSize)
@@ -96,8 +96,8 @@ struct StateNavigation: View {
                 }
                 .buttonStyle(SquareButtonStyle())
                 Button(action: {
-                    if model.slideOpen {
-                        model.slideOpen = false
+                    if evaluator.slideOpen {
+                        evaluator.slideOpen = false
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             self.evaluator.selectedKey += 1
                             if self.evaluator.selectedKey > 11 {
@@ -105,9 +105,8 @@ struct StateNavigation: View {
                             }
                         }
                     } else {
-                        model.slideOpen = false
+                        evaluator.slideOpen = false
                         evaluator.selectedKey += 1
-                        //allKeys.shuffle()
                         if evaluator.selectedKey > 11 {
                             evaluator.selectedKey = 11
                         }
@@ -123,8 +122,8 @@ struct StateNavigation: View {
             }
         }
         .offset(x: 5)
-        
     }
+    
 }
 
 

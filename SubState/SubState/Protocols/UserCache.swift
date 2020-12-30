@@ -43,12 +43,12 @@ struct LogEntryData: Equatable, Hashable, Identifiable, Codable {
 }
 
 class LogEntries: UserCache, ObservableObject {
-    //@Published private(set) var items: [LogEntryData]
     @Published var items: [LogEntryData]
     
     static let saveKey = "SavedData"
     
     init() {
+        debugPrint("log entries")
         if let data = UserDefaults.standard.data(forKey: Self.saveKey) {
             if let decoded = try? JSONDecoder().decode([LogEntryData].self, from: data) {
                 self.items = decoded

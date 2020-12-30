@@ -21,11 +21,9 @@
 		0872F5D2256F0D9B00AE80BD /* FilteringList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5CD256F0D9B00AE80BD /* FilteringList.swift */; };
 		0872F5D3256F0D9B00AE80BD /* Hideable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5CE256F0D9B00AE80BD /* Hideable.swift */; };
 		0872F5F3256F11E100AE80BD /* SubState-Evaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5F2256F11E100AE80BD /* SubState-Evaluator.swift */; };
-		0872F5F8256F11EB00AE80BD /* SubState-Translator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F5F7256F11EB00AE80BD /* SubState-Translator.swift */; };
 		0872F60C25735F7C00AE80BD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F60B25735F7C00AE80BD /* ContentView.swift */; };
 		0872F617257368A300AE80BD /* StateNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0872F616257368A300AE80BD /* StateNavigation.swift */; };
 		0888C2AD257563F600EFCB19 /* NavSelectionEvaluating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0888C2AC257563F600EFCB19 /* NavSelectionEvaluating.swift */; };
-		08C933642587D2B7008375FB /* SubState-AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C933632587D2B7008375FB /* SubState-AppModel.swift */; };
 		D208CFE825152069000A0C28 /* UserCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = D208CFE725152069000A0C28 /* UserCache.swift */; };
 		D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBCA24FF0689002E3EEB /* SubStateApp.swift */; };
 		D280FBCD24FF0689002E3EEB /* SubState-Screen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D280FBCC24FF0689002E3EEB /* SubState-Screen.swift */; };
@@ -91,11 +89,9 @@
 		0872F5CD256F0D9B00AE80BD /* FilteringList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilteringList.swift; sourceTree = "<group>"; };
 		0872F5CE256F0D9B00AE80BD /* Hideable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hideable.swift; sourceTree = "<group>"; };
 		0872F5F2256F11E100AE80BD /* SubState-Evaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubState-Evaluator.swift"; sourceTree = "<group>"; };
-		0872F5F7256F11EB00AE80BD /* SubState-Translator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubState-Translator.swift"; sourceTree = "<group>"; };
 		0872F60B25735F7C00AE80BD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		0872F616257368A300AE80BD /* StateNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateNavigation.swift; sourceTree = "<group>"; };
 		0888C2AC257563F600EFCB19 /* NavSelectionEvaluating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavSelectionEvaluating.swift; sourceTree = "<group>"; };
-		08C933632587D2B7008375FB /* SubState-AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubState-AppModel.swift"; sourceTree = "<group>"; };
 		D208CFE725152069000A0C28 /* UserCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCache.swift; sourceTree = "<group>"; };
 		D280FBC724FF0689002E3EEB /* SubState.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubState.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D280FBCA24FF0689002E3EEB /* SubStateApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubStateApp.swift; sourceTree = "<group>"; };
@@ -193,9 +189,7 @@
 				0872F616257368A300AE80BD /* StateNavigation.swift */,
 				D280FBF724FF0735002E3EEB /* CorridorView.swift */,
 				0872F5F2256F11E100AE80BD /* SubState-Evaluator.swift */,
-				0872F5F7256F11EB00AE80BD /* SubState-Translator.swift */,
 				D280FBCC24FF0689002E3EEB /* SubState-Screen.swift */,
-				08C933632587D2B7008375FB /* SubState-AppModel.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -517,11 +511,9 @@
 				0872F5C4256F0D6D00AE80BD /* EvaluatorElement.swift in Sources */,
 				0872F5D3256F0D9B00AE80BD /* Hideable.swift in Sources */,
 				0872F617257368A300AE80BD /* StateNavigation.swift in Sources */,
-				0872F5F8256F11EB00AE80BD /* SubState-Translator.swift in Sources */,
 				D280FBCD24FF0689002E3EEB /* SubState-Screen.swift in Sources */,
 				D280FBCB24FF0689002E3EEB /* SubStateApp.swift in Sources */,
 				D280FC6E2502E9FE002E3EEB /* Bundle-Decodable.swift in Sources */,
-				08C933642587D2B7008375FB /* SubState-AppModel.swift in Sources */,
 				D2E9EBF3250A9A9500AEBF89 /* NormalizeSound.swift in Sources */,
 				D280FC702502EA7E002E3EEB /* Tracks.swift in Sources */,
 				0872F5D1256F0D9B00AE80BD /* EvaluatingTextField.swift in Sources */,

@@ -9,118 +9,39 @@ import SwiftUI
 
 extension SubState {
     struct Screen: View {
-        //poet flow
-        let evaluator: Evaluator
-        let translator: Translator
-        typealias Element = Evaluator.Element
+        //Player relies on 2 state objects
+        @StateObject var evaluator: Evaluator
+        @StateObject var subStatePlayer = SubStatePlayer()
         
-        @DataLoader("tracks.json") private var tracks: [Tracks]
-        
-        @ObservedObject var subStatePlayer = SubStatePlayer()
-        @State var currentTime: String = ""
-        @State var soundSamples: [Float] = []
-        @State var audioPulse: Int = 0
-        //wave properties
-        @State var phase: Double = 0.0
-        @State var waveStrength: Double = 0.0
-        @State var waveFrequency: Double = 10.0
-        
-        let keySize: CGFloat = 25
-        @State var selectedKey: Int = UserDefaults.standard.integer(forKey: "savedkey")
-        @State var slideOpen: Bool = false
-        @State var allKeys: [Any] = [KeyOne.self, KeyTwo.self, KeyThree.self, KeyFour.self, KeyFive.self, KeySix.self, KeySeven.self, KeyEight.self, KeyNine.self, KeyTen.self, KeyEleven.self, KeyTwelve.self]
-        
-        @State var keyDragId: Int = 0
-        
-        @State var navigationState: Int = UserDefaults.standard.integer(forKey: "navstate")
-        
-        @State var playPause: Bool = UserDefaults.standard.bool(forKey: "playpause")
-        
-        @State var playerTime: TimeInterval = UserDefaults.standard.double(forKey: "atsatime")
-        
-        @ObservedObject var appModel = SubStateAppModel(slideOpen: false, playPause: UserDefaults.standard.bool(forKey: "playpause"))
-        
-        init() {
-            evaluator = Evaluator()
-            translator = evaluator.translator
+        init(evaluator: Evaluator = .init()) {
+            _evaluator = StateObject(wrappedValue: evaluator)
         }
         
-
         var body: some View {
             ZStack {
                 Color.offWhite
-
-                if translator.navId == 1 && slideOpen {
-
-                    if selectedKey == 1 {
-                        EmitterView(
-                            particleViews: [AnyView(KeyOneRaw()
-                                                        .foregroundColor(.gray)
-                                                        .frame(width: 10, height: 10))],
-                            particleCount: 20 + audioPulse,
-                            creationPoint: .leading,
-                            creationRange: CGSize(width: 0, height: 0),
-                            colors: [.gray, .red],
-                            alphaSpeed: 10,
-                            angle: Angle(degrees: 90),
-                            angleRange: Angle(degrees: 0),
-                            scale: CGFloat(audioPulse) * 0.3,
-                            scaleRange: CGFloat(audioPulse) * 0.3,
-                            scaleSpeed: 0.4,
-                            speed: 1200,
-                            speedRange: Double(audioPulse * 25),
-                            animation: Animation.linear(duration: 2).repeatForever(autoreverses: true).delay(0.5), animationDelayThreshold: 5
-                            )
-                        .offset(x: 0)
-                    } else if selectedKey == 0 {
-                        ZStack(alignment: .top) {
-                            ForEach(0..<20) { i in
-                                // 100 30 0
-                                Wave(strength: waveStrength, frequency: waveFrequency, phase: phase)
-                                    .stroke(Color.gray.opacity(Double(i) / 10), lineWidth: CGFloat(audioPulse))
-                                    .offset(y: CGFloat(i) * 15)
-                            }
-                        }
-                        .onAppear {
-                            withAnimation(Animation.linear(duration: 0.7).repeatForever(autoreverses: false)) {
-                                self.phase = .pi * 2
-                            }
-                        }
-                        .onDisappear {
-                            self.phase = 0.0
-                        }
-                    }
-
-                }
                 
                 VStack(alignment: .leading) {
-                    //state 0
-                    if translator.navId == 0 {
-                        TrackScrollList(evaluator: self.evaluator, currentTime: $currentTime, soundSamples: $soundSamples, navigationState: $navigationState, tracks: tracks)
-                            //.transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 0.0, anchor: .center)))
+                    if evaluator.navId == 0 {
+                        TrackScrollList(evaluator: evaluator, subStatePlayer: subStatePlayer)
                             .transition(AnyTransition.identity)
-                    } else if translator.navId == 1 {
-                        //state 1
-                        CorridorView(currentIndex: $selectedKey) {
+                    } else if evaluator.navId == 1 {
+                        CorridorView(evaluator: evaluator) {
                             ForEach(0..<12) { value in
-                                SlidingEntry(evaluator: self.evaluator, doorIndex: value, tracks: tracks, soundSamples: $soundSamples, currentTime: $currentTime, slideOpen: $slideOpen, keyDragId: $keyDragId)
+                                SlidingEntry(evaluator: evaluator, subStatePlayer: subStatePlayer, doorIndex: value)
                             }
                         }
-
-                    } else if translator.navId == 2 {
-                        //log state
-                        LogList()
+                    } else if evaluator.navId == 2 {
+                        LogList(evaluator: evaluator)
                     }
 
-                    SubStateController(evaluator: self.evaluator, slideOpen: $slideOpen, allKeys: $allKeys)
+                    SubStateController(evaluator: evaluator)
                     
-                    //setup a model for StateNavigation that contains evaluator reference, slideOpen, and playPause
-                    //StateNavigation(evaluator: self.evaluator, slideOpen: $slideOpen, playPause: $playPause)
-                    StateNavigation(evaluator: self.evaluator, model: appModel)
+                    StateNavigation(evaluator: evaluator)
 
                     HStack {
                         Spacer()
-                        Text("\(currentTime)")
+                        Text("\(subStatePlayer.trackTime)")
                             .font(.custom("DIN Condensed Bold", size: 16))
                             .foregroundColor(Color.gray)
                         Spacer()
@@ -130,50 +51,36 @@ extension SubState {
                 }
                 .offset(x: 0, y: -30)
                 .animation(.default)
-                .onChange(of: selectedKey) { newKey in
-                    playPause = true
-                    subStatePlayer.playTrack(track: tracks[newKey].fileName)
-                }
-                .onChange(of: subStatePlayer.trackTime) { newTime in
-                    currentTime = newTime
-                }
-                .onChange(of: subStatePlayer.soundSamples) { samples in
-                    soundSamples = samples
-                }
-                .onChange(of: subStatePlayer.audioPulse) { pulse in
-                    audioPulse = pulse
-                    //phase = Double(pulse)
-                    waveStrength = Double(pulse*4)
-                    //waveFrequency = Double(pulse)
+                .onChange(of: evaluator.selectedKey) { newKey in
+                    evaluator.playPause = true
+                    subStatePlayer.playTrack(track: evaluator.tracks[newKey].fileName)
                 }
                 .onChange(of: subStatePlayer.songComplete) { songComplete in
                     if songComplete {
-                        if selectedKey < 11 {
-                            selectedKey += 1
-                            subStatePlayer.playTrack(track: tracks[selectedKey].fileName)
+                        if evaluator.selectedKey < 11 {
+                            evaluator.selectedKey += 1
+                            subStatePlayer.playTrack(track: evaluator.tracks[evaluator.selectedKey].fileName)
                         }
                     }
                 }
-                .onChange(of: playPause) { pp in
+                .onChange(of: evaluator.playPause) { pp in
                     
                     if !pp {
                         subStatePlayer.pausePlayer()
-                        playerTime = subStatePlayer.audioPlayer.currentTime
-                        UserDefaults.standard.set(playerTime, forKey: "atsatime")
-                        UserDefaults.standard.set(selectedKey, forKey: "savedkey")
-                        UserDefaults.standard.set(playPause, forKey: "playpause")
+                        evaluator.playerTime = subStatePlayer.audioPlayer.currentTime
+                        UserDefaults.standard.set(evaluator.playerTime, forKey: "atsatime")
+                        UserDefaults.standard.set(evaluator.selectedKey, forKey: "savedkey")
+                        UserDefaults.standard.set(evaluator.playPause, forKey: "playpause")
                     } else {
-                        //subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
                         subStatePlayer.resumePlayer()
-                        UserDefaults.standard.set(playPause, forKey: "playpause")
+                        UserDefaults.standard.set(evaluator.playPause, forKey: "playpause")
                     }
                     
                 }
                 .onAppear {
                     debugPrint("first appear")
-                    self.evaluator.viewDidAppear()
-                    playPause = true
-                    subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
+                    evaluator.playPause = true
+                    subStatePlayer.playTrack(track: evaluator.tracks[evaluator.selectedKey].fileName, playHead: evaluator.playerTime)
                     
                 }
                 
@@ -181,23 +88,23 @@ extension SubState {
             .edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
                 print("Moving to the background!")
-                playerTime = subStatePlayer.audioPlayer.currentTime
-                UserDefaults.standard.set(playerTime, forKey: "atsatime")
-                UserDefaults.standard.set(selectedKey, forKey: "savedkey")
-                UserDefaults.standard.set(navigationState, forKey: "navstate")
+                evaluator.playerTime = subStatePlayer.audioPlayer.currentTime
+                UserDefaults.standard.set(evaluator.playerTime, forKey: "atsatime")
+                UserDefaults.standard.set(evaluator.selectedKey, forKey: "savedkey")
+                UserDefaults.standard.set(evaluator.navId, forKey: "navId")
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                 print("Moving back to the foreground!")
-                if playPause {
-                    subStatePlayer.playTrack(track: tracks[selectedKey].fileName, playHead: playerTime)
+                if evaluator.playPause {
+                    subStatePlayer.playTrack(track: evaluator.tracks[evaluator.selectedKey].fileName, playHead: evaluator.playerTime)
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
                 print("App will quit")
-                playerTime = subStatePlayer.audioPlayer.currentTime
-                UserDefaults.standard.set(playerTime, forKey: "atsatime")
-                UserDefaults.standard.set(selectedKey, forKey: "savedkey")
-                UserDefaults.standard.set(navigationState, forKey: "navstate")
+                evaluator.playerTime = subStatePlayer.audioPlayer.currentTime
+                UserDefaults.standard.set(evaluator.playerTime, forKey: "atsatime")
+                UserDefaults.standard.set(evaluator.selectedKey, forKey: "savedkey")
+                UserDefaults.standard.set(evaluator.navId, forKey: "navId")
             }
         }
     }
@@ -205,10 +112,12 @@ extension SubState {
 
 
 struct LogList: View {
-    @ObservedObject var logEntries = LogEntries()
+    @StateObject var evaluator: Evaluator
+    @State var logDisplayItems: [LogEntryData] = []
 
     
-    init() {
+    init(evaluator: Evaluator = .init()) {
+        _evaluator = StateObject(wrappedValue: evaluator)
         UITableView.appearance().separatorStyle = .singleLine
         UITableView.appearance().backgroundColor = UIColor(Color.offWhite)
     }
@@ -254,16 +163,19 @@ struct LogList: View {
  */
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    ForEach(logEntries.displayItems(), id: \.id) { log in
+                    ForEach(logDisplayItems, id: \.id) { log in
                         LogCellView(logEntry: log)
                     }
                 }
             }
         }
+        .onAppear {
+            logDisplayItems = evaluator.logEntries.displayItems()
+        }
     }
     
     func delete(at offsets: IndexSet) {
-        logEntries.removeItem(at: offsets)
+        evaluator.logEntries.removeItem(at: offsets)
     }
 }
 struct LogCellButtonStyle: ButtonStyle {
@@ -453,37 +365,35 @@ struct SquareButtonStyle: ButtonStyle {
 }
 
 struct SlidingEntry: View {
-    @State var evaluator: NavSelectionEvaluating
+    
+    @StateObject var evaluator: Evaluator
+    @StateObject var subStatePlayer: SubStatePlayer
+    
     let doorIndex: Int
-    var tracks: [Tracks]
-    @Binding var soundSamples: [Float]
-    @Binding var currentTime: String
-    @Binding var slideOpen: Bool
-    //@Binding var selectedKey: Int
-    @Binding var keyDragId: Int
+
     
     var body: some View {
         GeometryReader { geometry in
 
             VStack(alignment: .trailing) {
                 ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
-                    if slideOpen {
-                        BehindClosedDoor(track: tracks[evaluator.selectedKey], slideOpen: $slideOpen)
+                    if evaluator.slideOpen {
+                        BehindClosedDoor(evaluator: evaluator)
                             .zIndex(1)
                     }
-                    LeftDisplayDoor(doorIndex: doorIndex, currentTime: $currentTime, tracks: tracks, soundSamples: $soundSamples)
-                        .offset(x: (slideOpen && evaluator.selectedKey == doorIndex) ? -(geometry.size.width*0.60) : 0)
-                        .animation((slideOpen && evaluator.selectedKey == doorIndex) ? Animation.easeIn(duration: 0.4) : Animation.easeOut(duration: 0.4))
+                    LeftDisplayDoor(evaluator: evaluator, subStatePlayer: subStatePlayer, doorIndex: doorIndex)
+                        .offset(x: (evaluator.slideOpen && evaluator.selectedKey == doorIndex) ? -(geometry.size.width*0.60) : 0)
+                        .animation((evaluator.slideOpen && evaluator.selectedKey == doorIndex) ? Animation.easeIn(duration: 0.4) : Animation.easeOut(duration: 0.4))
                         .zIndex(2)
-                    RightKeyDoor(evaluator: evaluator, slideOpen: $slideOpen, keyDragId: $keyDragId, soundSamples: $soundSamples)
-                        .offset(x: (slideOpen && evaluator.selectedKey == doorIndex) ? geometry.size.width*0.35 : 0)
-                        .animation((slideOpen && evaluator.selectedKey == doorIndex) ? Animation.easeIn(duration: 0.4) : Animation.easeOut(duration: 0.4))
+                    RightKeyDoor(evaluator: evaluator, subStatePlayer: subStatePlayer)
+                        .offset(x: (evaluator.slideOpen && evaluator.selectedKey == doorIndex) ? geometry.size.width*0.35 : 0)
+                        .animation((evaluator.slideOpen && evaluator.selectedKey == doorIndex) ? Animation.easeIn(duration: 0.4) : Animation.easeOut(duration: 0.4))
                         .zIndex(3)
                 }
                 .gesture(
                     DragGesture()
                         .onEnded {
-                            if slideOpen == false {
+                            if evaluator.slideOpen == false {
                                 if $0.startLocation.x < $0.location.x {
                                     if evaluator.selectedKey > 0 {
                                         evaluator.selectedKey -= 1
@@ -496,9 +406,9 @@ struct SlidingEntry: View {
                             }
                         }
                 )
-                if !slideOpen {
+                if !evaluator.slideOpen {
                     Button(action: {
-                        slideOpen = true
+                        evaluator.slideOpen = true
                     }) {
                         HStack {
                             ArrowUp(parentSize: 6)
@@ -521,14 +431,13 @@ struct SlidingEntry: View {
 }
 
 struct BehindClosedDoor: View {
-    var track: Tracks
-    @Binding var slideOpen: Bool
+    @StateObject var evaluator: Evaluator
+
     @State private var entryText = "_"
     @State private var saveButtonHeight = CGFloat(20)
-    @EnvironmentObject var logEntries: LogEntries
+
     var leftMargin = CGFloat(40)
-    //@State var leftSlideMargin = CGFloat(-500)
-    //@State var rightSlideMargin = CGFloat(500)
+
     @State var leftSlideMargin = CGFloat(40)
     @State var rightSlideMargin = CGFloat(40)
     @State var scaleY: CGFloat = 0
@@ -541,7 +450,7 @@ struct BehindClosedDoor: View {
             VStack(alignment: .leading, spacing: 5) {
                 Spacer()
                     .frame(height: 137)
-                BehindDoorSave(track: track, slideOpen: $slideOpen, entryText: $entryText, saveButtonHeight: $saveButtonHeight)
+                BehindDoorSave(evaluator: evaluator, entryText: $entryText, saveButtonHeight: $saveButtonHeight)
                     .offset(x: leftSlideMargin)
                     .frame(width: (geometry.size.width - leftMargin*2)-0, height: saveButtonHeight)
                     .opacity(alphaRow)
@@ -550,15 +459,15 @@ struct BehindClosedDoor: View {
                     .frame(width: (geometry.size.width - leftMargin*2)-0, height: 100)
                     .opacity(alphaRow)
                     .scaleEffect(scaleY, anchor: .bottom)
-                BehindDoorVinylAndAction(track: track)
+                BehindDoorVinylAndAction(track: evaluator.tracks[evaluator.selectedKey])
                     .offset(x: leftSlideMargin, y: 14)
                     .frame(width: (geometry.size.width - leftMargin*2)-20, height: 50)
                     .opacity(alphaRow)
-                BehindDoorArtistSong(track: track)
+                BehindDoorArtistSong(track: evaluator.tracks[evaluator.selectedKey])
                     .offset(x: rightSlideMargin, y: 14)
                     .frame(width: (geometry.size.width - leftMargin*2)-5, height: 50)
                     .opacity(alphaRow)
-                BehindDoorSongHistory(track: track)
+                BehindDoorSongHistory(track: evaluator.tracks[evaluator.selectedKey])
                     .offset(x: leftSlideMargin, y: 5)
                     .frame(width: (geometry.size.width - leftMargin*2)-45, height: 140)
                     .opacity(alphaRow)
@@ -575,21 +484,19 @@ struct BehindClosedDoor: View {
 }
 
 struct BehindDoorSave: View {
-    var track: Tracks
-    @Binding var slideOpen: Bool
+    @StateObject var evaluator: Evaluator
+    
     @Binding var entryText: String
     @Binding var saveButtonHeight: CGFloat
-    @EnvironmentObject var logEntries: LogEntries
     
     var body: some View {
         GeometryReader { geometry in
             Button(action: {
-                let logEntry = LogEntries()
                 let loggedDataStamp = "Log Entry: \(Date().description)"
-                let logData = LogEntryData(loggedTrack: track, loggedUserText: entryText, loggedDate: loggedDataStamp)
-                logEntry.add(item: logData)
+                let logData = LogEntryData(loggedTrack: evaluator.tracks[evaluator.selectedKey], loggedUserText: entryText, loggedDate: loggedDataStamp)
+                evaluator.logEntries.add(item: logData)
                 self.hideKeyboard()
-                slideOpen = false
+                evaluator.slideOpen = false
             }) {
                 Text("Save")
                     .font(.custom("DIN Condensed Bold", size: 21))
@@ -712,9 +619,6 @@ struct BehindDoorSongHistory: View {
     }
 }
 
-
-
-
 struct HallwayTrack: View {
     var body: some View {
         GeometryReader { geometry in
@@ -729,10 +633,10 @@ struct HallwayTrack: View {
 
 struct LeftDisplayDoor: View, NormalizeSound {
     
+    @StateObject var evaluator: Evaluator
+    @StateObject var subStatePlayer: SubStatePlayer
+    
     let doorIndex: Int
-    @Binding var currentTime: String
-    var tracks: [Tracks]
-    @Binding var soundSamples: [Float]
     
     var body: some View {
         GeometryReader { geometry in
@@ -750,11 +654,12 @@ struct LeftDisplayDoor: View, NormalizeSound {
                     .blendMode(.softLight)
 
                 VStack(alignment: .leading) {
-                    DoorIdPanel(doorIndex: doorIndex, currentTime: $currentTime, soundSamples: $soundSamples)
+                    DoorIdPanel(subStatePlayer: subStatePlayer, doorIndex: doorIndex)
                         .frame(width: 110, height: 40, alignment: .bottomLeading)
-                    SongInfoPanel(doorIndex: doorIndex, tracks: tracks)
+                    SongInfoPanel(doorIndex: doorIndex, tracks: evaluator.tracks)
                         .frame(width: 140, height: 50, alignment: .bottomLeading)
                         .offset(x: 5, y: 35)
+
                 }
                 .offset(x: -40, y: -75)
 
@@ -764,12 +669,9 @@ struct LeftDisplayDoor: View, NormalizeSound {
 }
 
 struct RightKeyDoor: View {
-    @State var evaluator: NavSelectionEvaluating
-    @Binding var slideOpen: Bool
-    @Binding var keyDragId: Int
-    //@Binding var selectedKey: Int
-    @Binding var soundSamples: [Float]
-    
+    @StateObject var evaluator: Evaluator
+    @StateObject var subStatePlayer: SubStatePlayer
+        
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .bottom) {
@@ -787,13 +689,13 @@ struct RightKeyDoor: View {
                     .offset(x: geometry.size.width*0.70, y: 0)
                 
 
-                UnlockCirclePanel(slideOpen: $slideOpen)
-                    .rotationEffect(.degrees(slideOpen ? 90 : 0))
+                UnlockCirclePanel(evaluator: evaluator)
+                    .rotationEffect(.degrees(evaluator.slideOpen ? 90 : 0))
                     .frame(width: 40, height: 40)
                     .offset(x: (geometry.size.width/2)-20, y: -175)
 
 
-                KeyDropPanel(evaluator: evaluator, slideOpen: $slideOpen, soundSamples: $soundSamples)
+                KeyDropPanel(evaluator: evaluator, subStatePlayer: subStatePlayer)
                     .frame(width: 80, height: 80)
                     .offset(x: (geometry.size.width*0.70)-14, y: -50)
 
@@ -847,11 +749,9 @@ struct RaisedShape: ViewModifier {
 struct LoweredShape: ViewModifier {
     func body(content: Content) -> some View {
             return RoundedRectangle(cornerRadius: 0)
-                //.fill(Color.offWhite)
                 .fill(Color.gray)
                 .overlay(
                     RoundedRectangle(cornerRadius: 0)
-                        //.stroke(Color.gray, lineWidth: 4)
                         .stroke(Color.black, lineWidth: 4)
                         .blur(radius: 4)
                         .offset(x: 2, y: 2)
@@ -860,7 +760,6 @@ struct LoweredShape: ViewModifier {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 0)
-                        //.stroke(Color.white, lineWidth: 8)
                         .stroke(Color.offWhite, lineWidth: 8)
                         .blur(radius: 4)
                         .offset(x: -2, y: -2)
@@ -1001,12 +900,12 @@ extension AnyTransition {
 }
 
 struct UnlockCirclePanel: View {
-    @Binding var slideOpen: Bool
+    @StateObject var evaluator: Evaluator
     
     var body: some View {
         ZStack {
             Button(action: {
-                slideOpen.toggle()
+                evaluator.slideOpen.toggle()
             }) {
                 Circle()
                     .foregroundColor(.offWhite)
@@ -1030,10 +929,9 @@ struct UnlockHalfCircle: Shape {
 }
 
 struct KeyDropPanel: View, NormalizeSound {
-    @State var evaluator: NavSelectionEvaluating
-    //@Binding var selectedKey: Int
-    @Binding var slideOpen: Bool
-    @Binding var soundSamples: [Float]
+    @StateObject var evaluator: Evaluator
+    @StateObject var subStatePlayer: SubStatePlayer
+
     @State private var endShapeAmount: CGFloat = 0
     
     var body: some View {
@@ -1045,7 +943,7 @@ struct KeyDropPanel: View, NormalizeSound {
                     .foregroundColor(.gray)
                     .loweredShapeStyle()
 
-                if evaluator.selectedKey == 0 && !slideOpen {
+                if evaluator.selectedKey == 0 && !evaluator.slideOpen {
                     Image("metalA")
                         .frame(width: geometry.size.width/3, height: geometry.size.height/3)
                         .mask(KeyOneRaw())
@@ -1054,7 +952,7 @@ struct KeyDropPanel: View, NormalizeSound {
                         .shadow(radius: 5)
                         .transition(.asymmetric(insertion: .softTransition, removal: .hardTransition))
 
-                } else if evaluator.selectedKey == 1 && !slideOpen {
+                } else if evaluator.selectedKey == 1 && !evaluator.slideOpen {
                     Image("metalA")
                         .frame(width: geometry.size.width/3, height: geometry.size.height/3)
                         .mask(KeyTwoRaw())
@@ -1064,7 +962,7 @@ struct KeyDropPanel: View, NormalizeSound {
                         .transition(.asymmetric(insertion: .softTransition, removal: .hardTransition))
                         //.transition(AnyTransition.identity)
  
-                } else if evaluator.selectedKey == 2 && !slideOpen {
+                } else if evaluator.selectedKey == 2 && !evaluator.slideOpen {
                     Image("metalA")
                         .frame(width: geometry.size.width/3, height: geometry.size.height/3)
                         .mask(KeyThreeRaw())
@@ -1082,9 +980,8 @@ struct KeyDropPanel: View, NormalizeSound {
 }
 
 struct DoorIdPanel: View, NormalizeSound {
+    @StateObject var subStatePlayer: SubStatePlayer
     let doorIndex: Int
-    @Binding var currentTime: String
-    @Binding var soundSamples: [Float]
     
     var formattedIndex: String {
         return (doorIndex < 10) ? "0\(doorIndex)" : "\(doorIndex)"
@@ -1096,7 +993,7 @@ struct DoorIdPanel: View, NormalizeSound {
                 .foregroundColor(.gray)
                 .loweredShapeStyle()
 
-            Text("\(currentTime)")
+            Text("\(subStatePlayer.trackTime)")
                 .font(.custom("DIN Condensed Bold", size: 20))
                 .foregroundColor(.offWhite)
                 .offset(y: 8)

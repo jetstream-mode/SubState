@@ -30,10 +30,8 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
     
     override init() {
         super.init()
-        //self.playTrack(track: tracks[0].fileName)
         self.audioTimer?.invalidate()
         self.audioTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(self.audioUpdate), userInfo: nil, repeats: true)
-        //self.audioTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.audioUpdate), userInfo: nil, repeats: true)
         
         self.soundSamples = [Float](repeating: .zero, count: numberOfSamples)
     }

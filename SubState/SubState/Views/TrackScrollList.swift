@@ -9,12 +9,10 @@ import Foundation
 import SwiftUI
 
 struct TrackScrollList: View, NormalizeSound {
-    @State var evaluator: NavSelectionEvaluating
-    @Binding var currentTime: String
-    @Binding var soundSamples: [Float]
-    @Binding var navigationState: Int
-    var tracks: [Tracks]
-    //@Binding var selectedKey: Int
+
+    @StateObject var evaluator: Evaluator
+    @StateObject var subStatePlayer: SubStatePlayer
+
     var currentYOffset: CGFloat {
         return -((CGFloat(evaluator.selectedKey) * 50) - 200)
     }
@@ -29,20 +27,20 @@ struct TrackScrollList: View, NormalizeSound {
                     .offset(x: 50)
                 
                 HStack(alignment: .top, spacing: 1) {
-                    ForEach(soundSamples, id: \.self) { level in
+                    ForEach(subStatePlayer.soundSamples, id: \.self) { level in
                         SoundBarView(soundValue: self.normalizeSoundLevel(level: level), barColor: .blue, barOpacity: 0.5, barWidth: 1.0)
                     }
                 }
                 .offset(x: 50, y: 0)
                 
                 VStack(alignment: .leading, spacing: 0) {
-                    ForEach(tracks) { track in
+                    ForEach(evaluator.tracks) { track in
                         Button(action: {
                             if let trackButtonHit = Int(track.id) {
                                 evaluator.selectedKey = trackButtonHit
                             }
                         }) {
-                            TrackCell(evaluator: self.evaluator, currentTime: $currentTime, track: track)
+                            TrackCell(evaluator: self.evaluator, subStatePlayer: subStatePlayer, track: track)
                                 .id(Int(track.id))
                                 .transition(.slide)
                         }
@@ -59,9 +57,9 @@ struct TrackScrollList: View, NormalizeSound {
 }
 
 struct TrackCell: View {
-    @State var evaluator: NavSelectionEvaluating
-    //@Binding var selectedKey: Int
-    @Binding var currentTime: String
+    @StateObject var evaluator: Evaluator
+    @StateObject var subStatePlayer: SubStatePlayer
+    
     var track: Tracks
     let keyShapeSize: CGFloat = 25
     
@@ -138,7 +136,7 @@ struct TrackCell: View {
                         .font(.custom("DIN Condensed Bold", size: 12))
                         .foregroundColor(Color.gray)
                     if trackId == evaluator.selectedKey {
-                        Text("\(currentTime)")
+                        Text("\(subStatePlayer.trackTime)")
                             .font(.custom("DIN Condensed Bold", size: 12))
                             .foregroundColor(Color.gray)
                     }
