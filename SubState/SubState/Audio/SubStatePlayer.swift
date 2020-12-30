@@ -70,7 +70,7 @@ class SubStatePlayer: NSObject, AVAudioPlayerDelegate, ObservableObject {
                         self.audioPlayer.currentTime = playHead
                     }
                     self.audioPlayer.play()
-                    self.audioPlayer.volume = 0
+                    //self.audioPlayer.volume = 0
                     DispatchQueue.main.async {
                         self.songComplete = false
                     }
