@@ -2,7 +2,7 @@
 //  SubStateApp.swift
 //  SubState
 //
-//  Created by Josh Kneedler on 9/1/20.
+//  Created by Josh Kneedler on 9/1/20..
 //
 
 import SwiftUI
